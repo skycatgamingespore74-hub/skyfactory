@@ -1,7 +1,3 @@
 
-                                                                                                                                                                                                                                                           document.getElementById("credits").innerText =
-                                                                                                                                                                                                                                                             localStorage.getItem("credits") || "0";
-
-                                                                                                                                                                                                                                                             document.getElementById("server").innerText =
-                                                                                                                                                                                                                                                               localStorage.getItem("server") || "Hors ligne";
-                                                                                                                                                                                                                                                               
+                                                      document.getElementById("credits").innerText = localStorage.getItem("credits") || "0";
+                                                      
