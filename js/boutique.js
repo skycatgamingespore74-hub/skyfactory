@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000"; // pas besoin du /api si ton serveur n'ajoute pas ce préfixe
+const API_URL = "https://serveur-site-production-97d2.up.railway.app"; // pas besoin du /api si ton serveur n'ajoute pas ce préfixe
 
 /* ===================== BOUTIQUE ===================== */
 async function acheterCredits(credits) {
