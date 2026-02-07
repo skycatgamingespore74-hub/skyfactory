@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000/api";
+const API_URL = "https://serveur-site-production-97d2.up.railway.app";
 
 /* ===================== PROTECTION PAGE ===================== */
 if (localStorage.getItem("connected") !== "true") {
