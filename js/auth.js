@@ -25,7 +25,7 @@ async function login() {
                                                                                                                                                                         const data = await res.json();
 
                                                                                                                                                                                 if (!res.ok) {
-                                                                                                                                                                                            alert(data.message || "Erreur de connexion");
+                                                                                                                                                                                            alert(data.message || "Compte inexistant ou mauvais identifiant");
                                                                                                                                                                                                         return;
                                                                                                                                                                                                                 }
 
