@@ -1,52 +1,68 @@
 <!DOCTYPE html>
-                          <html lang="fr">
-                          <head>
-                          <meta charset="UTF-8">
-                          <title>Boutique</title>
-                          
-        <style>
-        * { box-sizing:border-box; }
-        body { margin:0; font-family:Arial,sans-serif; background:#020617; color:white; }
-        header { background:#1e293b; padding:20px; }
-        nav a { color:#38bdf8; margin-right:15px; text-decoration:none; }
-        .container { padding:30px; }
-        .card { background:#1e293b; padding:20px; border-radius:8px; margin-bottom:20px; }
-        button { padding:10px 15px; border:none; background:#2563eb; color:white; border-radius:5px; cursor:pointer; }
-        input { padding:10px; width:100%; margin-bottom:10px; }
-        footer { background:#020617; text-align:center; padding:15px; opacity:0.6; }
-        </style>
-        
-                          </head>
-                          <body>
-                          
-        <header>
-        <h1>Bot Platform</h1>
-        <nav>
-        <a href="index.html">Accueil</a>
-        <a href="bots.html">Nos bots</a>
-        <a href="equipe.html">Équipe</a>
-        <a href="credits.html">Crédits</a>
-        <a href="connexion.html">Connexion</a>
-        </nav>
-        </header>
-        
-                          <div class="container">
-                          <div class="card">
-                          <h2>Boutique</h2>
-                          <p>Choisis le nombre de crédits et le prix correspondant :</p>
-                          <ul>
-                          <li>5 crédits → 0,99€ <button onclick="acheterCredits(5)">Acheter</button></li>
-                          <li>10 crédits → 1,99€ <button onclick="acheterCredits(10)">Acheter</button></li>
-                          <li>25 crédits → 4,99€ <button onclick="acheterCredits(25)">Acheter</button></li>
-                    
-                          </ul>
-                          </div>
-                          </div>
-                          
-        <footer>
-        © 2026 Bot Platform – Tous droits réservés
-        </footer>
-        
-                          <script src="js/boutique.js"></script>
-                          </body>
-                          </html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Boutique</title>
+
+<style>
+* { box-sizing:border-box; }
+body { margin:0; font-family:Arial,sans-serif; background:#020617; color:white; }
+header { background:#1e293b; padding:20px; }
+nav a { color:#38bdf8; margin-right:15px; text-decoration:none; }
+.container { padding:30px; }
+.card { background:#1e293b; padding:20px; border-radius:8px; margin-bottom:20px; }
+button { padding:10px 15px; border:none; background:#2563eb; color:white; border-radius:5px; cursor:pointer; }
+input { padding:10px; width:100%; margin-bottom:10px; }
+footer { background:#020617; text-align:center; padding:15px; opacity:0.6; }
+
+/* Bande serveur en haut */
+#server-status {
+    width: 100%;
+    padding: 8px 0;
+    text-align: center;
+    font-weight: bold;
+    color: white;
+    background-color: #e11d48; /* rouge vif */
+}
+#server-status.connected {
+    background-color: #22c55e; /* vert */
+}
+</style>
+
+</head>
+<body>
+
+<!-- Bande serveur -->
+<div id="server-status">Vérification du serveur...</div>
+
+<header>
+<h1>Bot Platform</h1>
+<nav>
+<a href="index.html">Accueil</a>
+<a href="bots.html">Nos bots</a>
+<a href="equipe.html">Équipe</a>
+<a href="credits.html">Crédits</a>
+<a href="connexion.html">Connexion</a>
+</nav>
+</header>
+
+<div class="container">
+<div class="card">
+<h2>Boutique</h2>
+<p>Choisis le nombre de crédits et le prix correspondant :</p>
+<ul>
+<li>5 crédits → 0,99€ <button onclick="acheterCredits(5)">Acheter</button></li>
+<li>10 crédits → 1,99€ <button onclick="acheterCredits(10)">Acheter</button></li>
+<li>25 crédits → 4,99€ <button onclick="acheterCredits(25)">Acheter</button></li>
+</ul>
+</div>
+</div>
+
+<footer>
+© 2026 Bot Platform – Tous droits réservés
+</footer>
+
+<script src="js/boutique.js"></script>
+<script src="js/connectionBar.js"></script>
+</body>
+</html>
