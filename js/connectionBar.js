@@ -1,10 +1,13 @@
-const SERVER_URL = 'https://serveur-site-production-97d2.up.railway.app'; // Racine du serveur backend
+const SERVER_URL = 'https://serveur-site-production-97d2.up.railway.app';
 
+// Fonction de test serveur
 async function checkServerConnection() {
     const bar = document.getElementById('server-status-bar');
     try {
-        const response = await fetch(`${SERVER_URL}/status`); // Vérifie le statut
-        if (response.ok) {
+        const response = await fetch(`${SERVER_URL}/status`); // juste le /status
+        const data = await response.json();
+
+        if (response.ok && data.connected) {
             bar.textContent = 'Connecté au serveur';
             document.body.classList.add('connected');
             document.body.classList.remove('disconnected');
@@ -15,9 +18,10 @@ async function checkServerConnection() {
         bar.textContent = 'Non connecté au serveur';
         document.body.classList.add('disconnected');
         document.body.classList.remove('connected');
+        console.error('Erreur serveur:', err);
     }
 }
 
 // Vérification toutes les 3 secondes
 setInterval(checkServerConnection, 3000);
-checkServerConnection(); // première vérification immédiate
+checkServerConnection();
