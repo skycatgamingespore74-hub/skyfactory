@@ -1,4 +1,4 @@
-const API_URL = 'https://serveur-site-production-97d2.up.railway.app';
+const API_URL = 'https://serveur-site-production-97d2.up.railway.app/profil';
 
 async function updateProfile() {
     const userId = localStorage.getItem('userId');
