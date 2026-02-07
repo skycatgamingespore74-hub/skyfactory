@@ -1,22 +1,50 @@
+const API_URL = "http://localhost:3000"; // pas besoin du /api si ton serveur n'ajoute pas ce préfixe
+
 /* ===================== BOUTIQUE ===================== */
-function acheterCredits(credits) {
+async function acheterCredits(credits) {
     const connected = localStorage.getItem("connected");
-        if (!connected) {
-                alert("Connecte-toi pour acheter des crédits !");
-                        return;
-                            }
+        const email = localStorage.getItem("email");
 
-                                // Récupère le nombre actuel de crédits depuis localStorage
-                                    let currentCredits = parseInt(localStorage.getItem("credits")) || 0;
-                                        currentCredits += credits;
+            if (!connected || !email) {
+                    alert("Connecte-toi pour acheter des crédits !");
+                            return;
+                                }
 
-                                            // Met à jour localStorage
-                                                localStorage.setItem("credits", currentCredits);
+                                    try {
+                                            // 1) Récupérer l'utilisateur depuis le backend
+                                                    const resUser = await fetch(`${API_URL}/user/${email}`);
+                                                            if (!resUser.ok) throw new Error("Impossible de récupérer les infos utilisateur");
+                                                                    const user = await resUser.json();
 
-                                                    // Met à jour l'affichage sur le dashboard si présent
-                                                        const creditsEl = document.getElementById("credits");
-                                                            if (creditsEl) creditsEl.innerText = currentCredits;
+                                                                            // 2) Calculer le nouveau total de crédits
+                                                                                    const newCredits = (user.credits || 0) + credits;
 
-                                                                // Message de confirmation
-                                                                    alert(`Achat réussi ! Tu as maintenant ${currentCredits} crédits.`);
-                                                                    }
+                                                                                            // 3) Envoyer la mise à jour au backend
+                                                                                                    const resUpdate = await fetch(`${API_URL}/update`, {
+                                                                                                                method: "POST",
+                                                                                                                            headers: {
+                                                                                                                                            "Content-Type": "application/json",
+                                                                                                                                                        },
+                                                                                                                                                                    body: JSON.stringify({
+                                                                                                                                                                                    email: email,
+                                                                                                                                                                                                    page: "boutique",   // peut être utile si tu suis la page
+                                                                                                                                                                                                                    newCredits: newCredits
+                                                                                                                                                                                                                                }),
+                                                                                                                                                                                                                                        });
+
+                                                                                                                                                                                                                                                const data = await resUpdate.json();
+                                                                                                                                                                                                                                                        if (!resUpdate.ok) throw new Error(data.error || "Erreur lors de la mise à jour des crédits");
+
+                                                                                                                                                                                                                                                                // 4) Mettre à jour localStorage et affichage
+                                                                                                                                                                                                                                                                        localStorage.setItem("credits", newCredits);
+
+                                                                                                                                                                                                                                                                                const creditsEl = document.getElementById("credits");
+                                                                                                                                                                                                                                                                                        if (creditsEl) creditsEl.innerText = newCredits;
+
+                                                                                                                                                                                                                                                                                                // 5) Message de confirmation
+                                                                                                                                                                                                                                                                                                        alert(`Achat réussi ! Tu as maintenant ${newCredits} crédits.`);
+                                                                                                                                                                                                                                                                                                            } catch (err) {
+                                                                                                                                                                                                                                                                                                                    console.error(err);
+                                                                                                                                                                                                                                                                                                                            alert("Impossible de contacter le serveur pour acheter des crédits");
+                                                                                                                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                                                                                                                                }
