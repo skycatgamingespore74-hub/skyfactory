@@ -1,4 +1,4 @@
-const SERVER_URL = 'http://localhost:3000'; // Ton serveur backend
+const SERVER_URL = 'https://serveur-site-production-97d2.up.railway.app/status'; // Ton serveur backend
 
 async function checkServerConnection() {
     const bar = document.getElementById('server-status-bar');
