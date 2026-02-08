@@ -2,169 +2,118 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>⚠️ ALERTE HORROR</title>
+<title>SIGNAL VHS</title>
 
 <style>
-body {
+html, body {
     margin: 0;
+    width: 100%;
+    height: 100%;
     background: black;
-    font-family: Arial, Helvetica, sans-serif;
-    color: red;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    overflow: hidden;
-}
-
-.container {
-    background: #0a0000;
-    border: 4px solid red;
-    padding: 30px;
-    max-width: 700px;
-    text-align: center;
-    border-radius: 15px;
-    box-shadow: 0 0 40px red;
-}
-
-h1 {
-    font-size: 36px;
-    animation: flicker 1.5s infinite;
-}
-
-.countdown {
-    font-size: 30px;
-    font-weight: bold;
-    margin: 20px 0;
-}
-
-.shake {
-    animation: shake 0.15s;
-}
-
-.flash {
-    background: darkred;
-}
-
-button, a {
-    margin-top: 15px;
-    padding: 15px 25px;
-    font-size: 18px;
-    font-weight: bold;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    text-decoration: none;
-}
-
-button {
-    background: red;
-    color: black;
-}
-
-a {
-    display: inline-block;
-    background: black;
-    color: red;
-    border: 2px solid red;
-}
-
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-<meta charset="UTF-8">
-<title>VHS HORROR</title>
-
-<style>
-body {
-    margin: 0;
-    background: black;
-    color: red;
+    color: white;
     font-family: monospace;
     overflow: hidden;
-    animation: vhsFlash 0.15s infinite;
 }
 
-@keyframes vhsFlash {
-    0% { background: #000; }
-    50% { background: #120000; }
-    100% { background: #000; }
-}
-
-.vhs {
+/* VHS LINES */
+body::before {
+    content: "";
     position: fixed;
     inset: 0;
-    background:
-        repeating-linear-gradient(
-            to bottom,
-            rgba(255,255,255,0.03),
-            rgba(255,255,255,0.03) 1px,
-            transparent 2px,
-            transparent 4px
-        );
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.04),
+        rgba(255,255,255,0.04) 1px,
+        transparent 2px,
+        transparent 4px
+    );
     pointer-events: none;
 }
 
-.container {
-    text-align: center;
-    padding-top: 15vh;
-    animation: shake 0.2s infinite;
+/* FLASH */
+.flash {
+    animation: flash 0.1s infinite;
+}
+@keyframes flash {
+    0% { background: black; }
+    50% { background: darkred; }
+    100% { background: black; }
 }
 
+/* SHAKE */
+.shake {
+    animation: shake 0.08s infinite;
+}
 @keyframes shake {
     0% { transform: translate(0); }
-    25% { transform: translate(-6px, 4px); }
-    50% { transform: translate(6px, -4px); }
-    75% { transform: translate(-4px, -6px); }
+    25% { transform: translate(-10px, 6px); }
+    50% { transform: translate(10px, -6px); }
+    75% { transform: translate(-6px, -10px); }
     100% { transform: translate(0); }
 }
 
-.countdown {
-    font-size: 32px;
+.center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
-.end {
-    font-size: 48px;
-    color: white;
+#countdown {
+    font-size: 36px;
+}
+
+#signal {
     display: none;
+    font-size: 60px;
+    letter-spacing: 4px;
 }
 
-.monster {
+#monster {
     display: none;
-    font-size: 80px;
-    color: red;
-    animation: glitch 0.05s infinite;
+    position: fixed;
+    inset: 0;
+    background: url("data:image/svg+xml;utf8,
+    <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'>
+        <rect width='800' height='600' fill='black'/>
+        <circle cx='300' cy='250' r='60' fill='red'/>
+        <circle cx='500' cy='250' r='60' fill='red'/>
+        <rect x='250' y='350' width='300' height='80' fill='red'/>
+    </svg>") center/cover no-repeat;
 }
 
-@keyframes glitch {
-    0% { transform: translate(0); }
-    20% { transform: translate(-10px, 5px); }
-    40% { transform: translate(10px, -5px); }
-    60% { transform: translate(-8px, -8px); }
-    80% { transform: translate(8px, 8px); }
-    100% { transform: translate(0); }
+button {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
 }
 </style>
 </head>
 
 <body>
 
-<div class="vhs"></div>
-
-<div class="container">
-    <div class="countdown" id="countdown"></div>
-    <div class="end" id="end">☠️ LE MONDE EST TERMINÉ ☠️</div>
-    <div class="monster" id="monster">👹</div>
-    <br>
-    <button onclick="enableSound()">🔊 ACTIVER LE SON</button>
+<div class="center shake" id="screen">
+    <div id="countdown"></div>
+    <div id="signal">📡 SIGNAL PERDU</div>
 </div>
+
+<div id="monster"></div>
+
+<button onclick="enableSound()">🔊 ACTIVER LE SON</button>
 
 <script>
 const targetDate = new Date("2026-02-09T00:00:00").getTime();
 
 const countdown = document.getElementById("countdown");
-const endText = document.getElementById("end");
+const signal = document.getElementById("signal");
 const monster = document.getElementById("monster");
+const screen = document.getElementById("screen");
 
 let audioCtx;
 let soundOn = false;
@@ -174,20 +123,15 @@ function enableSound() {
     soundOn = true;
 }
 
-function horrorNoise(volume = 1, duration = 1) {
+function noise(volume, duration) {
     if (!soundOn) return;
-
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-
     osc.type = "sawtooth";
-    osc.frequency.value = 50 + Math.random() * 2000;
-
-    gain.gain.value = volume; // ⚠️ TRÈS FORT
-
+    osc.frequency.value = 100 + Math.random() * 2000;
+    gain.gain.value = volume;
     osc.connect(gain);
     gain.connect(audioCtx.destination);
-
     osc.start();
     osc.stop(audioCtx.currentTime + duration);
 }
@@ -198,14 +142,15 @@ setInterval(() => {
 
     if (diff <= 0) {
         countdown.style.display = "none";
-        endText.style.display = "block";
-        horrorNoise(1, 2);
+        signal.style.display = "block";
+        document.body.classList.add("flash");
+        noise(0.6, 2);
 
         setTimeout(() => {
             monster.style.display = "block";
-            horrorNoise(1, 5); // 🔊 MAX HORROR
-            document.body.style.animation = "vhsFlash 0.05s infinite";
-        }, 3000);
+            screen.style.display = "none";
+            noise(1, 4); // jumpscare sonore
+        }, 2000);
 
         return;
     }
@@ -215,39 +160,7 @@ setInterval(() => {
     const s = Math.floor((diff / 1000) % 60);
 
     countdown.innerHTML = `⏳ ${h}h ${m}m ${s}s`;
-    horrorNoise(0.2, 0.05);
-}, 1000);
-</script>
-
-</body>
-</html>tTime + 0.12);
-}
-
-setInterval(() => {
-    const now = Date.now();
-    const diff = targetDate - now;
-
-    box.classList.add("shake");
-    document.body.classList.add("flash");
-
-    setTimeout(() => {
-        box.classList.remove("shake");
-        document.body.classList.remove("flash");
-    }, 150);
-
-    if (diff <= 0) {
-        countdown.innerHTML = "💀 IL EST TROP TARD 💀";
-        horrorTick();
-        return;
-    }
-
-    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-    const m = Math.floor((diff / (1000 * 60)) % 60);
-    const s = Math.floor((diff / 1000) % 60);
-
-    horrorTick();
-    countdown.innerHTML = `⏳ ${d}j ${h}h ${m}m ${s}s`;
+    noise(0.15, 0.05);
 }, 1000);
 </script>
 
