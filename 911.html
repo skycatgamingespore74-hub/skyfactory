@@ -12,18 +12,12 @@ body {
     transition: background 2s, color 2s;
     overflow: hidden;
 }
-body.red { background: darkred; color: red; }
 #topbar { display: flex; justify-content: space-between; padding: 10px 20px; }
 #cart { cursor: pointer; }
 #app { padding: 40px; max-width: 800px; margin: auto; position: relative; }
 button { padding: 10px 20px; margin-top: 15px; cursor: pointer; }
 input { display: block; margin: 10px 0; padding: 8px; width: 100%; }
 .popup { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); background: black; color: white; padding: 10px 20px; }
-.countdown { font-size: 32px; margin-top: 20px; }
-.trait { position:absolute; background:#9ad7ff; }
-.monstre { position:absolute; width:50px; height:50px; }
-.fade { animation: fade 1.5s infinite alternate; }
-@keyframes fade { 0%{opacity:0.2} 100%{opacity:1} }
 </style>
 </head>
 <body>
@@ -72,7 +66,10 @@ let interval=setInterval(()=>{
 function site(){
 app.innerHTML=`
 <h1>Accueil</h1>
-<p> Impossible se charger le site <p> <button onclick="shop()">Boutique</button>`;
+<p>Princesse Naw se porte disparue le 8 février à cause de la reprise lundi.<br>
+Son téléphone a été retrouvé au bord d'une route.<br>
+À cause d'une évaluation de Français 💀</p>
+<button onclick="shop()">Boutique</button>`;
 }
 
 /* ===== Boutique ===== */
@@ -114,61 +111,12 @@ app.innerHTML=`<h2>Paiement</h2><input placeholder="Code joli (4 chiffres)"><but
 
 function paid(){
 app.innerHTML=`<h2>✔ Paiement validé</h2>`;
-setTimeout(errorPay,2000);
+setTimeout(redirectErreur,2000);
 }
 
-/* ===== Erreur Paiement / Disparition ===== */
-function errorPay(){
-document.body.classList.add("red");
-app.innerHTML=`
-<h1>Erreur de paiement</h1>
-<p>Redirection...</p>`;
-setTimeout(disparition,1500);
-}
-
-/* ===== Disparition ===== */
-function disparition(){
-app.innerHTML=`<h1 class="fade">DISPARITION</h1>
-<p>
-Princesse Naw se porte disparue le 8 février à cause de la reprise lundi.<br>
-Son téléphone a été retrouvé au bord d'une route.<br>
-À cause d'une évaluation de Français 💀
-</p>
-<a href="tel:9110"><button>📞 APPELER 9110</button></a>
-<div class="countdown" id="cd"></div>`;
-
-// Ajouter 40 lignes / traits
-for(let i=0;i<40;i++){
-let t=document.createElement("div");
-t.className="trait";
-t.style.top=Math.random()*window.innerHeight+"px";
-t.style.left=Math.random()*window.innerWidth+"px";
-t.style.width=Math.random()*200+"px";
-t.style.height="1px";
-document.body.appendChild(t);
-}
-
-// Compteur 1 minute
-let end=Date.now()+60000;
-let cd=document.getElementById("cd");
-let timer=setInterval(()=>{
-let s=Math.floor((end-Date.now())/1000);
-if(s<=0){clearInterval(timer);monstres();}
-else cd.innerText=s+"s";
-},1000);
-}
-
-/* ===== Monstres ===== */
-function monstres(){
-app.innerHTML=`<h1>SIGNAL PERDU</h1>`;
-for(let i=0;i<10;i++){
-let m=document.createElement("div");
-m.className="monstre";
-m.style.top=Math.random()*window.innerHeight+"px";
-m.style.left=Math.random()*window.innerWidth+"px";
-m.style.background="pink";
-document.body.appendChild(m);
-}
+/* ===== Redirection vers erreur.html ===== */
+function redirectErreur(){
+window.location.href = "erreur.html";
 }
 
 home();
