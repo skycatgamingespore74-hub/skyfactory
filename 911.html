@@ -69,74 +69,158 @@ a {
     border: 2px solid red;
 }
 
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>VHS HORROR</title>
+
+<style>
+body {
+    margin: 0;
+    background: black;
+    color: red;
+    font-family: monospace;
+    overflow: hidden;
+    animation: vhsFlash 0.15s infinite;
+}
+
+@keyframes vhsFlash {
+    0% { background: #000; }
+    50% { background: #120000; }
+    100% { background: #000; }
+}
+
+.vhs {
+    position: fixed;
+    inset: 0;
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            rgba(255,255,255,0.03),
+            rgba(255,255,255,0.03) 1px,
+            transparent 2px,
+            transparent 4px
+        );
+    pointer-events: none;
+}
+
+.container {
+    text-align: center;
+    padding-top: 15vh;
+    animation: shake 0.2s infinite;
+}
+
 @keyframes shake {
     0% { transform: translate(0); }
-    25% { transform: translate(-5px, 5px); }
-    50% { transform: translate(5px, -5px); }
-    75% { transform: translate(-5px, -5px); }
+    25% { transform: translate(-6px, 4px); }
+    50% { transform: translate(6px, -4px); }
+    75% { transform: translate(-4px, -6px); }
     100% { transform: translate(0); }
 }
 
-@keyframes flicker {
-    0% { opacity: 1; }
-    50% { opacity: 0.4; }
-    100% { opacity: 1; }
+.countdown {
+    font-size: 32px;
+}
+
+.end {
+    font-size: 48px;
+    color: white;
+    display: none;
+}
+
+.monster {
+    display: none;
+    font-size: 80px;
+    color: red;
+    animation: glitch 0.05s infinite;
+}
+
+@keyframes glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-10px, 5px); }
+    40% { transform: translate(10px, -5px); }
+    60% { transform: translate(-8px, -8px); }
+    80% { transform: translate(8px, 8px); }
+    100% { transform: translate(0); }
 }
 </style>
 </head>
 
 <body>
 
-<div class="container" id="box">
-    <h1>⚠️ DISPARITION ⚠️</h1>
+<div class="vhs"></div>
 
-    <p>
-        Princesse Naw se porte disparue le 8 février à cause de la reprise lundi.
-        <br><br>
-        téléphone trouver au bord d'une route.
-        <br><br>
-        a cause d'une évaluation d'anglais  💀
-    </p>
-
-    <button id="soundBtn">🔊 ACTIVER LE SON (HORROR)</button>
-
+<div class="container">
     <div class="countdown" id="countdown"></div>
-
-    <a href="tel:9110">📞 APPELER 9110</a>
+    <div class="end" id="end">☠️ LE MONDE EST TERMINÉ ☠️</div>
+    <div class="monster" id="monster">👹</div>
+    <br>
+    <button onclick="enableSound()">🔊 ACTIVER LE SON</button>
 </div>
 
 <script>
-const targetDate = new Date("2026-02-10T00:00:00").getTime();
+const targetDate = new Date("2026-02-09T00:00:00").getTime();
+
 const countdown = document.getElementById("countdown");
-const box = document.getElementById("box");
+const endText = document.getElementById("end");
+const monster = document.getElementById("monster");
 
 let audioCtx;
-let enabled = false;
+let soundOn = false;
 
-document.getElementById("soundBtn").onclick = () => {
+function enableSound() {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    enabled = true;
-    document.getElementById("soundBtn").innerText = "🔊 SON ACTIVÉ";
-};
+    soundOn = true;
+}
 
-function horrorTick() {
-    if (!enabled) return;
+function horrorNoise(volume = 1, duration = 1) {
+    if (!soundOn) return;
 
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
 
     osc.type = "sawtooth";
-    osc.frequency.setValueAtTime(1800, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
+    osc.frequency.value = 50 + Math.random() * 2000;
 
-    gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+    gain.gain.value = volume; // ⚠️ TRÈS FORT
 
     osc.connect(gain);
     gain.connect(audioCtx.destination);
 
     osc.start();
-    osc.stop(audioCtx.currentTime + 0.12);
+    osc.stop(audioCtx.currentTime + duration);
+}
+
+setInterval(() => {
+    const now = Date.now();
+    const diff = targetDate - now;
+
+    if (diff <= 0) {
+        countdown.style.display = "none";
+        endText.style.display = "block";
+        horrorNoise(1, 2);
+
+        setTimeout(() => {
+            monster.style.display = "block";
+            horrorNoise(1, 5); // 🔊 MAX HORROR
+            document.body.style.animation = "vhsFlash 0.05s infinite";
+        }, 3000);
+
+        return;
+    }
+
+    const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const m = Math.floor((diff / (1000 * 60)) % 60);
+    const s = Math.floor((diff / 1000) % 60);
+
+    countdown.innerHTML = `⏳ ${h}h ${m}m ${s}s`;
+    horrorNoise(0.2, 0.05);
+}, 1000);
+</script>
+
+</body>
+</html>tTime + 0.12);
 }
 
 setInterval(() => {
