@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>⚠️ ALERTE HORROR VHS</title>
+<title>⚠️ HORROR COUNTDOWN</title>
 <style>
 body {
     margin: 0;
@@ -35,7 +35,6 @@ a { display: inline-block; background: black; color: red; border: 2px solid red;
 #monster { display: none; position: fixed; inset: 0; background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><rect width='800' height='600' fill='black'/><circle cx='300' cy='250' r='60' fill='red'/><circle cx='500' cy='250' r='60' fill='red'/><rect x='250' y='350' width='300' height='80' fill='red'/></svg>") center/cover no-repeat; }
 @keyframes shake { 0% { transform: translate(0); } 25% { transform: translate(-5px,5px); } 50% { transform: translate(5px,-5px); } 75% { transform: translate(-5px,-5px); } 100% { transform: translate(0); } }
 @keyframes flicker { 0% { opacity:1; } 50% { opacity:0.4; } 100% { opacity:1; } }
-@keyframes flash { 0%{background:black;} 50%{background:darkred;} 100%{background:black;} }
 </style>
 </head>
 <body>
@@ -56,8 +55,8 @@ a { display: inline-block; background: black; color: red; border: 2px solid red;
 <div id="monster"></div>
 
 <script>
-const targetDate = new Date("2026-02-10T00:00:00").getTime();
-const countdown = document.getElementById("countdown");
+let countdownTime = 60; // 1 minute en secondes
+const countdownEl = document.getElementById("countdown");
 const box = document.getElementById("box");
 const signal = document.getElementById("signal");
 const monster = document.getElementById("monster");
@@ -69,55 +68,47 @@ document.getElementById("soundBtn").onclick = () => {
     document.getElementById("soundBtn").innerText = "🔊 SON ACTIVÉ";
 };
 
-function horrorTick(volume = 0.35, duration = 0.12) {
+// fonction son agressif avec variations aléatoires
+function horrorTick() {
     if(!enabled) return;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
-    osc.type = "sawtooth";
-    osc.frequency.setValueAtTime(1800, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
-    gain.gain.setValueAtTime(volume, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.type = ["sine","square","sawtooth","triangle"][Math.floor(Math.random()*4)];
+    osc.frequency.value = 200 + Math.random()*2000;
+    gain.gain.value = 0.2 + Math.random()*0.5;
     osc.connect(gain);
     gain.connect(audioCtx.destination);
     osc.start();
-    osc.stop(audioCtx.currentTime + duration);
+    osc.stop(audioCtx.currentTime + 0.1 + Math.random()*0.1);
 }
 
-setInterval(() => {
-    const now = Date.now();
-    const diff = targetDate - now;
-
-    // ANCIEN THÈME → fond rouge, flash, shake
+// boucle principale
+let timerInterval = setInterval(()=>{
+    countdownEl.innerHTML = `⏳ ${Math.floor(countdownTime/60)}m ${countdownTime%60}s`;
     box.classList.add("shake");
     document.body.classList.add("flash");
-    setTimeout(() => { box.classList.remove("shake"); document.body.classList.remove("flash"); },150);
+    setTimeout(()=>{box.classList.remove("shake"); document.body.classList.remove("flash");},100);
 
-    if(diff <= 0){
-        // FIN HORROR
-        countdown.style.display = "none";
+    horrorTick();
+    countdownTime--;
+
+    if(countdownTime < 0){
+        clearInterval(timerInterval);
+        countdownEl.style.display = "none";
         signal.style.display = "block";
-        horrorTick(0.6,2);
+        horrorTick();
         document.body.classList.add("flash");
 
-        // 2 secondes après, jumpscare monstre + son violent
+        // 2 secondes après → jumpscare monstre
         setTimeout(()=>{
             monster.style.display="block";
             box.style.display="none";
-            horrorTick(1,4);
+            for(let i=0;i<20;i++){ // bruit agressif prolongé
+                setTimeout(()=>horrorTick(),i*100);
+            }
             document.body.classList.add("shake");
         },2000);
-
-        return;
     }
-
-    const d = Math.floor(diff/(1000*60*60*24));
-    const h = Math.floor((diff/(1000*60*60))%24);
-    const m = Math.floor((diff/(1000*60))%60);
-    const s = Math.floor((diff/1000)%60);
-
-    countdown.innerHTML=`⏳ ${d}j ${h}h ${m}m ${s}s`;
-    horrorTick(0.2,0.05);
 },1000);
 </script>
 </body>
