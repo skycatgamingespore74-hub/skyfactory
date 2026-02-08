@@ -2,114 +2,210 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>⚠️ HORROR COUNTDOWN</title>
+<title>Système Central</title>
+
 <style>
+* { box-sizing: border-box; }
+
 body {
     margin: 0;
-    background: black;
     font-family: Arial, Helvetica, sans-serif;
-    color: red;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    background: #cfe9ff;
+    color: #003;
     height: 100vh;
     overflow: hidden;
+    transition: background 1s;
 }
-.container {
-    background: #0a0000;
-    border: 4px solid red;
-    padding: 30px;
-    max-width: 700px;
+
+.screen {
+    display: none;
+    height: 100vh;
+    padding: 40px;
+}
+
+.screen.active { display: block; }
+
+h1 { margin-top: 0; }
+
+button {
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+}
+
+input {
+    padding: 10px;
+    font-size: 16px;
+    width: 250px;
+    margin-bottom: 10px;
+}
+
+/* ===== HORROR EFFECTS ===== */
+.flash {
+    animation: flash 0.2s infinite;
+}
+
+@keyframes flash {
+    0% { background-color: #200; }
+    50% { background-color: #000; }
+    100% { background-color: #300; }
+}
+
+.shake {
+    animation: shake 0.15s infinite;
+}
+
+@keyframes shake {
+    0% { transform: translate(0); }
+    25% { transform: translate(-10px, 10px); }
+    50% { transform: translate(10px, -10px); }
+    75% { transform: translate(-10px, -10px); }
+    100% { transform: translate(0); }
+}
+
+/* fissures */
+.crack::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      linear-gradient(45deg, transparent 48%, red 49%, transparent 51%),
+      linear-gradient(-30deg, transparent 47%, darkred 48%, transparent 52%);
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+/* ===== FINAL ===== */
+#finalText {
+    font-size: 60px;
     text-align: center;
-    border-radius: 15px;
-    box-shadow: 0 0 40px red;
+    color: white;
+    letter-spacing: 4px;
+    margin-top: 30vh;
 }
-h1 { font-size: 36px; animation: flicker 1.5s infinite; }
-.countdown { font-size: 30px; font-weight: bold; margin: 20px 0; }
-.shake { animation: shake 0.15s; }
-.flash { background: darkred; }
-button, a { margin-top: 15px; padding: 15px 25px; font-size: 18px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; text-decoration: none; }
-button { background: red; color: black; }
-a { display: inline-block; background: black; color: red; border: 2px solid red; }
-#signal { display: none; font-size: 60px; color: white; letter-spacing: 4px; text-align: center; }
-#monster { display: none; position: fixed; inset: 0; background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><rect width='800' height='600' fill='black'/><circle cx='300' cy='250' r='60' fill='red'/><circle cx='500' cy='250' r='60' fill='red'/><rect x='250' y='350' width='300' height='80' fill='red'/></svg>") center/cover no-repeat; }
-@keyframes shake { 0% { transform: translate(0); } 25% { transform: translate(-5px,5px); } 50% { transform: translate(5px,-5px); } 75% { transform: translate(-5px,-5px); } 100% { transform: translate(0); } }
-@keyframes flicker { 0% { opacity:1; } 50% { opacity:0.4; } 100% { opacity:1; } }
+
+#countdown {
+    font-size: 40px;
+    color: red;
+    font-weight: bold;
+}
 </style>
 </head>
+
 <body>
-<div class="container" id="box">
-    <h1>⚠️ DISPARITION ⚠️</h1>
-    <p>
-        Princesse Naw se porte disparue le 8 février à cause de la reprise lundi.
-        <br><br>
-        CHEH princesse naw.
-        <br><br>
-        Le live arrive… et ça va critiquer 💀
-    </p>
-    <button id="soundBtn">🔊 ACTIVER LE SON (HORROR)</button>
-    <div class="countdown" id="countdown"></div>
-    <div id="signal">📡 SIGNAL PERDU</div>
-    <a href="tel:9110">📞 APPELER 9110</a>
+
+<!-- INTRO -->
+<div class="screen active" id="intro">
+    <h1>Créer un compte</h1>
+    <input placeholder="Nom d'utilisateur (fictif)">
+    <br>
+    <button onclick="go('loading')">S'inscrire</button>
 </div>
-<div id="monster"></div>
+
+<!-- LOADING -->
+<div class="screen" id="loading">
+    <h1>Connexion en cours…</h1>
+    <p>Synchronisation du profil…</p>
+</div>
+
+<!-- PROFIL -->
+<div class="screen" id="profile">
+    <h1>Profil utilisateur</h1>
+    <p>Pseudo : <b>UTILISATEUR_742</b></p>
+    <p>Statut : Actif</p>
+    <button onclick="go('shop')">Boutique</button>
+</div>
+
+<!-- BOUTIQUE -->
+<div class="screen" id="shop">
+    <h1>Boutique</h1>
+    <p>Fragment inconnu — 99.99 CR</p>
+    <button onclick="addItem()">Ajouter au panier</button>
+    <br><br>
+    <button onclick="go('cart')">Panier</button>
+</div>
+
+<!-- PANIER -->
+<div class="screen" id="cart">
+    <h1>Panier</h1>
+    <p id="cartContent">1 objet</p>
+    <button onclick="go('payment')">Procéder</button>
+</div>
+
+<!-- PAIEMENT FAKE -->
+<div class="screen" id="payment">
+    <h1>Transaction simulée</h1>
+    <p><b>⚠️ Simulation fictive — aucune donnée réelle</b></p>
+    <button onclick="startPayment()">Lancer la transaction</button>
+</div>
+
+<!-- HORROR -->
+<div class="screen" id="horror">
+    <h1>Traitement du paiement…</h1>
+    <div id="countdown"></div>
+</div>
+
+<!-- FINAL -->
+<div class="screen" id="final">
+    <div id="finalText">SYSTÈME CORROMPU<br>SIGNAL PERDU</div>
+</div>
 
 <script>
-let countdownTime = 60; // 1 minute en secondes
-const countdownEl = document.getElementById("countdown");
-const box = document.getElementById("box");
-const signal = document.getElementById("signal");
-const monster = document.getElementById("monster");
-
-let audioCtx, enabled = false;
-document.getElementById("soundBtn").onclick = () => {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    enabled = true;
-    document.getElementById("soundBtn").innerText = "🔊 SON ACTIVÉ";
-};
-
-// fonction son agressif avec variations aléatoires
-function horrorTick() {
-    if(!enabled) return;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = ["sine","square","sawtooth","triangle"][Math.floor(Math.random()*4)];
-    osc.frequency.value = 200 + Math.random()*2000;
-    gain.gain.value = 0.2 + Math.random()*0.5;
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.1 + Math.random()*0.1);
+function go(id) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
 }
 
-// boucle principale
-let timerInterval = setInterval(()=>{
-    countdownEl.innerHTML = `⏳ ${Math.floor(countdownTime/60)}m ${countdownTime%60}s`;
-    box.classList.add("shake");
-    document.body.classList.add("flash");
-    setTimeout(()=>{box.classList.remove("shake"); document.body.classList.remove("flash");},100);
-
-    horrorTick();
-    countdownTime--;
-
-    if(countdownTime < 0){
-        clearInterval(timerInterval);
-        countdownEl.style.display = "none";
-        signal.style.display = "block";
-        horrorTick();
-        document.body.classList.add("flash");
-
-        // 2 secondes après → jumpscare monstre
-        setTimeout(()=>{
-            monster.style.display="block";
-            box.style.display="none";
-            for(let i=0;i<20;i++){ // bruit agressif prolongé
-                setTimeout(()=>horrorTick(),i*100);
-            }
-            document.body.classList.add("shake");
-        },2000);
+setTimeout(() => {
+    if (document.getElementById("loading").classList.contains("active")) {
+        go("profile");
     }
-},1000);
+}, 2000);
+
+function addItem() {
+    alert("Objet ajouté au panier");
+}
+
+let audioCtx;
+function sound() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = ["square","sawtooth","triangle"][Math.floor(Math.random()*3)];
+    o.frequency.value = 200 + Math.random()*2000;
+    g.gain.value = 0.3;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start();
+    o.stop(audioCtx.currentTime + 0.1);
+}
+
+function startPayment() {
+    go("horror");
+    document.body.style.background = "#300";
+    document.body.classList.add("flash","crack");
+
+    let time = 60;
+    const cd = document.getElementById("countdown");
+
+    const timer = setInterval(() => {
+        sound();
+        document.body.classList.add("shake");
+        setTimeout(()=>document.body.classList.remove("shake"),150);
+
+        cd.textContent = `⏳ ${time}s`;
+        time--;
+
+        if (time < 0) {
+            clearInterval(timer);
+            go("final");
+            document.body.classList.add("shake","flash","crack");
+        }
+    },1000);
+}
 </script>
+
 </body>
 </html>
