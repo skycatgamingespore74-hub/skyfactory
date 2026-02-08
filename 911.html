@@ -2,8 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Réseau Aquatique</title>
-
+<title>Réseau Aquatique – Simulation</title>
 <style>
 body {
     margin: 0;
@@ -11,132 +10,88 @@ body {
     background: #0b1f33;
     color: #9ad7ff;
     transition: background 2s, color 2s;
+    overflow: hidden;
 }
-body.alert {
-    background: black;
-    color: red;
-    animation: shake 0.15s infinite;
-}
-#topbar {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 20px;
-}
-#cart {
-    cursor: pointer;
-}
-#app {
-    padding: 40px;
-    max-width: 800px;
-    margin: auto;
-}
-button {
-    padding: 10px 20px;
-    margin-top: 15px;
-    cursor: pointer;
-}
-input {
-    display: block;
-    margin: 10px 0;
-    padding: 8px;
-    width: 100%;
-}
-.popup {
-    position: fixed;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: black;
-    color: white;
-    padding: 10px 20px;
-}
-.countdown {
-    font-size: 32px;
-    margin-top: 20px;
-}
-@keyframes shake {
-    0%{transform:translate(0)}
-    25%{transform:translate(-5px,5px)}
-    50%{transform:translate(5px,-5px)}
-    75%{transform:translate(-5px,-5px)}
-    100%{transform:translate(0)}
-}
+body.red { background: darkred; color: red; }
+#topbar { display: flex; justify-content: space-between; padding: 10px 20px; }
+#cart { cursor: pointer; }
+#app { padding: 40px; max-width: 800px; margin: auto; position: relative; }
+button { padding: 10px 20px; margin-top: 15px; cursor: pointer; }
+input { display: block; margin: 10px 0; padding: 8px; width: 100%; }
+.popup { position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); background: black; color: white; padding: 10px 20px; }
+.countdown { font-size: 32px; margin-top: 20px; }
+.trait { position:absolute; background:#9ad7ff; }
+.monstre { position:absolute; width:50px; height:50px; }
+.fade { animation: fade 1.5s infinite alternate; }
+@keyframes fade { 0%{opacity:0.2} 100%{opacity:1} }
 </style>
 </head>
-
 <body>
-
 <div id="topbar">
-    <div>🌊 Réseau Aquatique</div>
-    <div id="cart" onclick="showCart()">🧺 <span id="cartCount">0</span></div>
+  <div>🌊 Réseau Aquatique</div>
+  <div id="cart" onclick="showCart()">🧺 <span id="cartCount">0</span></div>
 </div>
-
 <div id="app"></div>
 
 <script>
-let cart = {};
-let app = document.getElementById("app");
+let cart={}, app=document.getElementById("app");
 
-function home() {
-app.innerHTML = `
+/* ===== Home ===== */
+function home(){
+app.innerHTML=`
 <h1>Bienvenue</h1>
 <p>Site connecté aux bots. Analyse des flux numériques.</p>
-<button onclick="login()">Connexion / Inscription</button>
-`;
+<button onclick="login()">Connexion / Inscription</button>`;
 }
 
-function login() {
-app.innerHTML = `
+/* ===== Login ===== */
+function login(){
+app.innerHTML=`
 <h2>Connexion</h2>
 <input placeholder="Identifiant">
 <input placeholder="Email">
 <input type="password" placeholder="Mot de passe">
-<button onclick="sync()">Continuer</button>
-`;
+<button onclick="sync()">Continuer</button>`;
 }
 
-function sync() {
-let p = 0;
-app.innerHTML = `<h2>Connexion en cours...</h2><p id="p">0%</p>`;
-let texts = ["Connexion...", "Synchronisation...", "Chargement du profil..."];
-let i = 0;
-let interval = setInterval(()=>{
-    p += 5;
-    document.getElementById("p").innerText = texts[i%3]+" "+p+"%";
+/* ===== Synchronisation ===== */
+function sync(){
+let p=0;
+let texts=["Connexion...","Synchronisation...","Chargement du profil..."];
+app.innerHTML=`<h2 id="loader">0%</h2>`;
+let i=0;
+let interval=setInterval(()=>{
+    p+=5;
+    document.getElementById("loader").innerText=texts[i%3]+" "+p+"%";
     i++;
-    if(p>=100){
-        clearInterval(interval);
-        site();
-    }
+    if(p>=100){clearInterval(interval); site();}
 },100);
 }
 
-function site() {
-app.innerHTML = `
+/* ===== Site Accueil ===== */
+function site(){
+app.innerHTML=`
 <h1>Accueil</h1>
-<p>Princesse Naw se porte disparue le 8 février à cause de la reprise lundi.<br><br>
-Son téléphone a été retrouvé au bord d'une route.<br><br>
+<p>Princesse Naw se porte disparue le 8 février à cause de la reprise lundi.<br>
+Son téléphone a été retrouvé au bord d'une route.<br>
 À cause d'une évaluation de Français 💀</p>
-<button onclick="shop()">Boutique</button>
-`;
+<button onclick="shop()">Boutique</button>`;
 }
 
-function shop() {
-let items = ["Module A", "Module B", "Clé X", "Accès Y", "Donnée Z"];
-app.innerHTML = `<h2>Boutique</h2>` + items.map(i =>
-`<button onclick="add('${i}')">${i}</button>`
-).join("<br>");
+/* ===== Boutique ===== */
+function shop(){
+let items=["Module A","Module B","Clé X","Accès Y","Donnée Z"];
+app.innerHTML=`<h2>Boutique</h2>`+items.map(i=>`<button onclick="add('${i}')">${i}</button>`).join("<br>");
 }
 
 function add(item){
-cart[item] = (cart[item]||0)+1;
+cart[item]=(cart[item]||0)+1;
 updateCart();
 popup("Ajouté au panier");
 }
 
 function updateCart(){
-document.getElementById("cartCount").innerText =
-Object.values(cart).reduce((a,b)=>a+b,0);
+document.getElementById("cartCount").innerText=Object.values(cart).reduce((a,b)=>a+b,0);
 }
 
 function popup(txt){
@@ -147,21 +102,17 @@ document.body.appendChild(p);
 setTimeout(()=>p.remove(),1500);
 }
 
+/* ===== Panier ===== */
 function showCart(){
 let html="<h2>Panier</h2>";
-for(let i in cart){
-html+=`${i} x${cart[i]}<br>`;
-}
+for(let i in cart){html+=`${i} x${cart[i]}<br>`}
 html+=`<br><button onclick="pay()">Procéder au paiement</button>`;
 app.innerHTML=html;
 }
 
+/* ===== Paiement ===== */
 function pay(){
-app.innerHTML=`
-<h2>Paiement</h2>
-<input placeholder="Code joli (4 chiffres)">
-<button onclick="paid()">Payer</button>
-`;
+app.innerHTML=`<h2>Paiement</h2><input placeholder="Code joli (4 chiffres)"><button onclick="paid()">Payer</button>`;
 }
 
 function paid(){
@@ -169,25 +120,61 @@ app.innerHTML=`<h2>✔ Paiement validé</h2>`;
 setTimeout(errorPay,2000);
 }
 
+/* ===== Erreur Paiement / Disparition ===== */
 function errorPay(){
-document.body.classList.add("alert");
-let end = Date.now()+60000;
+document.body.classList.add("red");
 app.innerHTML=`
-<h1>⚠️ ERREUR DE PAIEMENT ⚠️</h1>
-<p>Une anomalie est détectée.</p>
+<h1>Erreur de paiement</h1>
+<p>Redirection...</p>`;
+setTimeout(disparition,1500);
+}
+
+/* ===== Disparition ===== */
+function disparition(){
+app.innerHTML=`<h1 class="fade">DISPARITION</h1>
+<p>
+Princesse Naw se porte disparue le 8 février à cause de la reprise lundi.<br>
+Son téléphone a été retrouvé au bord d'une route.<br>
+À cause d'une évaluation de Français 💀
+</p>
 <a href="tel:9110"><button>📞 APPELER 9110</button></a>
-<div class="countdown" id="cd"></div>
-`;
+<div class="countdown" id="cd"></div>`;
+
+// Ajouter 40 lignes / traits
+for(let i=0;i<40;i++){
+let t=document.createElement("div");
+t.className="trait";
+t.style.top=Math.random()*window.innerHeight+"px";
+t.style.left=Math.random()*window.innerWidth+"px";
+t.style.width=Math.random()*200+"px";
+t.style.height="1px";
+document.body.appendChild(t);
+}
+
+// Compteur 1 minute
+let end=Date.now()+60000;
 let cd=document.getElementById("cd");
-let t=setInterval(()=>{
+let timer=setInterval(()=>{
 let s=Math.floor((end-Date.now())/1000);
-if(s<=0){clearInterval(t);cd.innerText="SIGNAL PERDU";}
+if(s<=0){clearInterval(timer);monstres();}
 else cd.innerText=s+"s";
 },1000);
 }
 
+/* ===== Monstres ===== */
+function monstres(){
+app.innerHTML=`<h1>SIGNAL PERDU</h1>`;
+for(let i=0;i<10;i++){
+let m=document.createElement("div");
+m.className="monstre";
+m.style.top=Math.random()*window.innerHeight+"px";
+m.style.left=Math.random()*window.innerWidth+"px";
+m.style.background="pink";
+document.body.appendChild(m);
+}
+}
+
 home();
 </script>
-
 </body>
 </html>
