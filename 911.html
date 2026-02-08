@@ -1,75 +1,171 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Alerte - Message important</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, Helvetica, sans-serif;
-            background-color: #111;
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+<meta charset="UTF-8">
+<title>⚠️ ALERTE HORROR</title>
 
-        .container {
-            background-color: #1c1c1c;
-            border: 2px solid red;
-            padding: 30px;
-            max-width: 700px;
-            text-align: center;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.4);
-        }
+<style>
+body {
+    margin: 0;
+    background: black;
+    font-family: Arial, Helvetica, sans-serif;
+    color: red;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
 
-        h1 {
-            color: red;
-            margin-bottom: 20px;
-        }
+.container {
+    background: #0a0000;
+    border: 4px solid red;
+    padding: 30px;
+    max-width: 700px;
+    text-align: center;
+    border-radius: 15px;
+    box-shadow: 0 0 40px red;
+}
 
-        p {
-            font-size: 18px;
-            line-height: 1.6;
-        }
+h1 {
+    font-size: 36px;
+    animation: flicker 1.5s infinite;
+}
 
-        .emergency {
-            margin-top: 25px;
-            font-size: 26px;
-            font-weight: bold;
-            color: #ff3b3b;
-        }
+.countdown {
+    font-size: 30px;
+    font-weight: bold;
+    margin: 20px 0;
+}
 
-        .footer {
-            margin-top: 20px;
-            font-size: 14px;
-            opacity: 0.7;
-        }
-    </style>
+.shake {
+    animation: shake 0.15s;
+}
+
+.flash {
+    background: darkred;
+}
+
+button, a {
+    margin-top: 15px;
+    padding: 15px 25px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+button {
+    background: red;
+    color: black;
+}
+
+a {
+    display: inline-block;
+    background: black;
+    color: red;
+    border: 2px solid red;
+}
+
+@keyframes shake {
+    0% { transform: translate(0); }
+    25% { transform: translate(-5px, 5px); }
+    50% { transform: translate(5px, -5px); }
+    75% { transform: translate(-5px, -5px); }
+    100% { transform: translate(0); }
+}
+
+@keyframes flicker {
+    0% { opacity: 1; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+</style>
 </head>
+
 <body>
 
-    <div class="container">
-        <h1>⚠️ Message important</h1>
+<div class="container" id="box">
+    <h1>⚠️ DISPARITION ⚠️</h1>
 
-        <p>
-            Princesse Naw se porte disparue le 8 février à cause de la reprise lundi.
-            <br><br>
-            CHEH princesse naw.
-            <br><br>
-            Et le live… faut que je te critique princesse Naw en fait 💀
-        </p>
+    <p>
+        Princesse Naw se porte disparue le 8 février à cause de la reprise lundi.
+        <br><br>
+        téléphone trouver au bord d'une route.
+        <br><br>
+        a cause d'une évaluation d'anglais  💀
+    </p>
 
-        <div class="emergency">
-            📞 Numéro d'urgence : 911
-        </div>
+    <button id="soundBtn">🔊 ACTIVER LE SON (HORROR)</button>
 
-        <div class="footer">
-            Page générée automatiquement
-        </div>
-    </div>
+    <div class="countdown" id="countdown"></div>
+
+    <a href="tel:9110">📞 APPELER 9110</a>
+</div>
+
+<script>
+const targetDate = new Date("2026-02-10T08:00:00").getTime();
+const countdown = document.getElementById("countdown");
+const box = document.getElementById("box");
+
+let audioCtx;
+let enabled = false;
+
+document.getElementById("soundBtn").onclick = () => {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    enabled = true;
+    document.getElementById("soundBtn").innerText = "🔊 SON ACTIVÉ";
+};
+
+function horrorTick() {
+    if (!enabled) return;
+
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(1800, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
+
+    gain.gain.setValueAtTime(0.35, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.12);
+}
+
+setInterval(() => {
+    const now = Date.now();
+    const diff = targetDate - now;
+
+    box.classList.add("shake");
+    document.body.classList.add("flash");
+
+    setTimeout(() => {
+        box.classList.remove("shake");
+        document.body.classList.remove("flash");
+    }, 150);
+
+    if (diff <= 0) {
+        countdown.innerHTML = "💀 IL EST TROP TARD 💀";
+        horrorTick();
+        return;
+    }
+
+    const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+    const m = Math.floor((diff / (1000 * 60)) % 60);
+    const s = Math.floor((diff / 1000) % 60);
+
+    horrorTick();
+    countdown.innerHTML = `⏳ ${d}j ${h}h ${m}m ${s}s`;
+}, 1000);
+</script>
 
 </body>
 </html>
