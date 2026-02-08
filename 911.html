@@ -2,224 +2,192 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Mini-Site Horror</title>
+<title>Réseau Aquatique</title>
+
 <style>
-* { box-sizing: border-box; margin:0; padding:0; }
-
 body {
-    font-family: Arial, Helvetica, sans-serif;
-    height:100vh;
-    overflow:hidden;
-    background:#cfe9ff;
-    color:#003;
-    transition: background 1s;
-    position: relative;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0b1f33;
+    color: #9ad7ff;
+    transition: background 2s, color 2s;
 }
-
-.screen { display:none; height:100vh; padding:40px; }
-.screen.active { display:block; }
-
-h1 { margin-top:0; }
-
+body.alert {
+    background: black;
+    color: red;
+    animation: shake 0.15s infinite;
+}
+#topbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 20px;
+}
+#cart {
+    cursor: pointer;
+}
+#app {
+    padding: 40px;
+    max-width: 800px;
+    margin: auto;
+}
 button {
-    padding:12px 20px;
-    font-size:16px;
-    font-weight:bold;
-    cursor:pointer;
-    border:none;
-    border-radius:6px;
+    padding: 10px 20px;
+    margin-top: 15px;
+    cursor: pointer;
 }
-
-input { padding:10px; font-size:16px; width:250px; margin-bottom:10px; }
-
-/* Loader */
-#loader { margin-top:40px; font-size:28px; text-align:center; }
-#percent { margin-top:15px; font-size:32px; font-weight:bold; }
-
-/* Horror Effects */
-.flash { animation: flash 0.2s infinite; }
-@keyframes flash {
-    0% { background-color:#200; } 50% { background-color:#000; } 100% { background-color:#300; }
+input {
+    display: block;
+    margin: 10px 0;
+    padding: 8px;
+    width: 100%;
 }
-.shake { animation: shake 0.15s infinite; }
-@keyframes shake {
-    0% { transform: translate(0); }
-    25% { transform: translate(-10px,10px); }
-    50% { transform: translate(10px,-10px); }
-    75% { transform: translate(-10px,-10px); }
-    100% { transform: translate(0); }
-}
-.crack::before {
-    content:"";
+.popup {
     position: fixed;
-    inset: 0;
-    background:
-      linear-gradient(45deg, transparent 48%, red 49%, transparent 51%),
-      linear-gradient(-30deg, transparent 47%, darkred 48%, transparent 52%);
-    opacity:0.3;
-    pointer-events:none;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: black;
+    color: white;
+    padding: 10px 20px;
 }
-
-/* Final */
-#finalText { font-size:60px; text-align:center; color:white; letter-spacing:4px; margin-top:30vh; }
-#countdown { font-size:40px; color:red; font-weight:bold; text-align:center; margin-top:30px; }
-
-/* Lines & Mountains */
-.line { position:absolute; width:100%; height:1px; background:white; opacity:0.1; top:0; animation: glitchline 1s infinite; }
-@keyframes glitchline { 0%{transform:translateX(0);}50%{transform:translateX(5px);}100%{transform:translateX(0);} }
-
-.mountain {
-    position:absolute;
-    bottom:0;
-    width:100%;
-    height:120px;
-    background:linear-gradient(to top,#1e90ff,transparent);
+.countdown {
+    font-size: 32px;
+    margin-top: 20px;
+}
+@keyframes shake {
+    0%{transform:translate(0)}
+    25%{transform:translate(-5px,5px)}
+    50%{transform:translate(5px,-5px)}
+    75%{transform:translate(-5px,-5px)}
+    100%{transform:translate(0)}
 }
 </style>
 </head>
+
 <body>
 
-<!-- INTRO -->
-<div class="screen active" id="intro">
-    <h1>Créer un compte</h1>
-    <input placeholder="Nom d'utilisateur (fictif)">
-    <br>
-    <button onclick="go('loading')">S'inscrire</button>
+<div id="topbar">
+    <div>🌊 Réseau Aquatique</div>
+    <div id="cart" onclick="showCart()">🧺 <span id="cartCount">0</span></div>
 </div>
 
-<!-- LOADING -->
-<div class="screen" id="loading">
-    <h1>Connexion en cours</h1>
-    <div id="loader">
-        <span id="dots">.</span>
-        <div id="percent">0%</div>
-        <div id="glitchMessage" style="margin-top:15px;font-size:18px;color:#333;"></div>
-    </div>
-    <div class="mountain"></div>
-</div>
-
-<!-- PROFIL -->
-<div class="screen" id="profile">
-    <h1>Profil utilisateur</h1>
-    <p>Pseudo : <b>UTILISATEUR_742</b></p>
-    <p>Statut : Actif</p>
-    <button onclick="go('shop')">Boutique</button>
-</div>
-
-<!-- BOUTIQUE -->
-<div class="screen" id="shop">
-    <h1>Boutique</h1>
-    <p>Fragment inconnu — 99.99 CR</p>
-    <button onclick="addItem()">Ajouter au panier</button>
-    <br><br>
-    <button onclick="go('cart')">Panier</button>
-</div>
-
-<!-- PANIER -->
-<div class="screen" id="cart">
-    <h1>Panier</h1>
-    <p id="cartContent">1 objet</p>
-    <button onclick="go('payment')">Procéder</button>
-</div>
-
-<!-- PAIEMENT FAKE -->
-<div class="screen" id="payment">
-    <h1>Transaction simulée</h1>
-    <p><b>⚠️ Simulation fictive — aucune donnée réelle</b></p>
-    <button onclick="startPayment()">Lancer la transaction</button>
-</div>
-
-<!-- HORROR -->
-<div class="screen" id="horror">
-    <h1>Traitement du paiement…</h1>
-    <div id="countdown"></div>
-</div>
-
-<!-- FINAL -->
-<div class="screen" id="final">
-    <div id="finalText">SYSTÈME CORROMPU<br>SIGNAL PERDU</div>
-</div>
-
-<!-- LIGNES GLITCH -->
-<div class="line" style="top:10%;"></div>
-<div class="line" style="top:30%;"></div>
-<div class="line" style="top:50%;"></div>
-<div class="line" style="top:70%;"></div>
+<div id="app"></div>
 
 <script>
-function go(id) {
-    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-    const screen = document.getElementById(id);
-    screen.classList.add("active");
+let cart = {};
+let app = document.getElementById("app");
 
-    if (id==="loading") startLoading();
+function home() {
+app.innerHTML = `
+<h1>Bienvenue</h1>
+<p>Site connecté aux bots. Analyse des flux numériques.</p>
+<button onclick="login()">Connexion / Inscription</button>
+`;
 }
 
-let loadingInterval;
-function startLoading() {
-    let percent=0, dotCount=1;
-    const dots=document.getElementById("dots");
-    const percentEl=document.getElementById("percent");
-    const glitch=document.getElementById("glitchMessage");
-    const messages=["Accès mémoire…","Synchronisation du profil…","Chargement du profil…","Démarrage…","Initialisation…","Chargement modules…"];
-
-    loadingInterval=setInterval(()=>{
-        // points animés
-        dotCount=dotCount%3+1;
-        dots.textContent=".".repeat(dotCount);
-
-        // pourcentage
-        percent += Math.floor(Math.random()*7)+3;
-        if(percent>=100) percent=100;
-        percentEl.textContent=percent+"%";
-
-        // message glitch aléatoire
-        glitch.textContent = messages[Math.floor(Math.random()*messages.length)];
-
-        if(percent===100){
-            clearInterval(loadingInterval);
-            setTimeout(()=>go("profile"),500);
-        }
-    },150);
+function login() {
+app.innerHTML = `
+<h2>Connexion</h2>
+<input placeholder="Identifiant">
+<input placeholder="Email">
+<input type="password" placeholder="Mot de passe">
+<button onclick="sync()">Continuer</button>
+`;
 }
 
-function addItem(){ alert("Objet ajouté au panier"); }
-
-let audioCtx;
-function sound(){
-    if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
-    const o=audioCtx.createOscillator();
-    const g=audioCtx.createGain();
-    o.type=["square","sawtooth","triangle"][Math.floor(Math.random()*3)];
-    o.frequency.value=200+Math.random()*2000;
-    g.gain.value=0.3;
-    o.connect(g); g.connect(audioCtx.destination);
-    o.start(); o.stop(audioCtx.currentTime+0.1);
+function sync() {
+let p = 0;
+app.innerHTML = `<h2>Connexion en cours...</h2><p id="p">0%</p>`;
+let texts = ["Connexion...", "Synchronisation...", "Chargement du profil..."];
+let i = 0;
+let interval = setInterval(()=>{
+    p += 5;
+    document.getElementById("p").innerText = texts[i%3]+" "+p+"%";
+    i++;
+    if(p>=100){
+        clearInterval(interval);
+        site();
+    }
+},100);
 }
 
-function startPayment(){
-    go("horror");
-    document.body.style.background="#300";
-    document.body.classList.add("flash","crack");
-
-    let time=60;
-    const cd=document.getElementById("countdown");
-
-    const timer=setInterval(()=>{
-        sound();
-        document.body.classList.add("shake");
-        setTimeout(()=>document.body.classList.remove("shake"),150);
-
-        cd.textContent=`⏳ ${time}s`;
-        time--;
-
-        if(time<0){
-            clearInterval(timer);
-            go("final");
-            document.body.classList.add("shake","flash","crack");
-        }
-    },1000);
+function site() {
+app.innerHTML = `
+<h1>Accueil</h1>
+<p>Princesse Naw se porte disparue le 8 février à cause de la reprise lundi.<br><br>
+Son téléphone a été retrouvé au bord d'une route.<br><br>
+À cause d'une évaluation de Français 💀</p>
+<button onclick="shop()">Boutique</button>
+`;
 }
+
+function shop() {
+let items = ["Module A", "Module B", "Clé X", "Accès Y", "Donnée Z"];
+app.innerHTML = `<h2>Boutique</h2>` + items.map(i =>
+`<button onclick="add('${i}')">${i}</button>`
+).join("<br>");
+}
+
+function add(item){
+cart[item] = (cart[item]||0)+1;
+updateCart();
+popup("Ajouté au panier");
+}
+
+function updateCart(){
+document.getElementById("cartCount").innerText =
+Object.values(cart).reduce((a,b)=>a+b,0);
+}
+
+function popup(txt){
+let p=document.createElement("div");
+p.className="popup";
+p.innerText=txt;
+document.body.appendChild(p);
+setTimeout(()=>p.remove(),1500);
+}
+
+function showCart(){
+let html="<h2>Panier</h2>";
+for(let i in cart){
+html+=`${i} x${cart[i]}<br>`;
+}
+html+=`<br><button onclick="pay()">Procéder au paiement</button>`;
+app.innerHTML=html;
+}
+
+function pay(){
+app.innerHTML=`
+<h2>Paiement</h2>
+<input placeholder="Code joli (4 chiffres)">
+<button onclick="paid()">Payer</button>
+`;
+}
+
+function paid(){
+app.innerHTML=`<h2>✔ Paiement validé</h2>`;
+setTimeout(errorPay,2000);
+}
+
+function errorPay(){
+document.body.classList.add("alert");
+let end = Date.now()+60000;
+app.innerHTML=`
+<h1>⚠️ ERREUR DE PAIEMENT ⚠️</h1>
+<p>Une anomalie est détectée.</p>
+<a href="tel:9110"><button>📞 APPELER 9110</button></a>
+<div class="countdown" id="cd"></div>
+`;
+let cd=document.getElementById("cd");
+let t=setInterval(()=>{
+let s=Math.floor((end-Date.now())/1000);
+if(s<=0){clearInterval(t);cd.innerText="SIGNAL PERDU";}
+else cd.innerText=s+"s";
+},1000);
+}
+
+home();
 </script>
+
 </body>
 </html>
