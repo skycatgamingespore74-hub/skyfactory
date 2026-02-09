@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skybotfactory Status</title>
+<style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 20px; }
+    h1 { text-align: center; }
+    .status-container { max-width: 600px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    .service { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #ddd; }
+    .service:last-child { border-bottom: none; }
+    .status-dot { width: 15px; height: 15px; border-radius: 50%; }
+    .ok { background: #4caf50; }
+    .warning { background: #ffc107; }
+    .error { background: #f44336; }
+    button { display: block; margin: 20px auto; padding: 10px 20px; font-size: 16px; cursor: not-allowed; background: #bbb; border: none; border-radius: 5px; color: #fff; }
+</style>
+</head>
+<body>
+
+<h1>Skybotfactory Status</h1>
+
+<div class="status-container" id="statusContainer">
+    <div class="service">
+        <span>Serveur</span>
+        <span class="status-dot ok" id="serverStatus"></span>
+    </div>
+    <div class="service">
+        <span>API /login</span>
+        <span class="status-dot ok" id="apiLoginStatus"></span>
+    </div>
+    <div class="service">
+        <span>API /register</span>
+        <span class="status-dot ok" id="apiRegisterStatus"></span>
+    </div>
+    <div class="service">
+        <span>Base de données</span>
+        <span class="status-dot ok" id="dbStatus"></span>
+    </div>
+</div>
+
+<button disabled>Tester (Indisponible)</button>
+
+<script>
+const API_URL = "https://serveur-site-production-97d2.up.railway.app";
+
+// Fonction pour tester l'état d'un endpoint
+async function checkStatus(endpoint, elementId) {
+    const el = document.getElementById(elementId);
+    try {
+        const res = await fetch(endpoint);
+        if (res.ok) {
+            el.className = 'status-dot ok';
+        } else {
+            el.className = 'status-dot warning';
+        }
+    } catch (err) {
+        el.className = 'status-dot error';
+    }
+}
+
+// Fonction pour tout checker
+async function updateStatus() {
+    checkStatus(`${API_URL}/status`, 'serverStatus');
+    checkStatus(`${API_URL}/login`, 'apiLoginStatus');
+    checkStatus(`${API_URL}/register`, 'apiRegisterStatus');
+    
+    // Test DB fictif (si tu veux tester la connexion à users.json)
+    try {
+        const res = await fetch(`${API_URL}/user/test@example.com`);
+        document.getElementById('dbStatus').className = res.ok ? 'status-dot ok' : 'status-dot warning';
+    } catch {
+        document.getElementById('dbStatus').className = 'status-dot error';
+    }
+}
+
+// Lancer le check toutes les 10 secondes
+updateStatus();
+setInterval(updateStatus, 10000);
+</script>
+
+</body>
+</html>
