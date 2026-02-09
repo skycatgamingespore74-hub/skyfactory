@@ -3,82 +3,66 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Skybotfactory Status</title>
+<title>SkyBotFactory - Statut</title>
 <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 20px; }
-    h1 { text-align: center; }
-    .status-container { max-width: 600px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-    .service { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #ddd; }
-    .service:last-child { border-bottom: none; }
-    .status-dot { width: 15px; height: 15px; border-radius: 50%; }
-    .ok { background: #4caf50; }
-    .warning { background: #ffc107; }
-    .error { background: #f44336; }
-    button { display: block; margin: 20px auto; padding: 10px 20px; font-size: 16px; cursor: not-allowed; background: #bbb; border: none; border-radius: 5px; color: #fff; }
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+    h1 { color: #333; }
+    .stat { margin: 10px 0; padding: 10px; background: #fff; border-radius: 5px; }
+    #logs { max-height: 200px; overflow-y: auto; background: #222; color: #0f0; padding: 10px; border-radius: 5px; font-family: monospace; }
+    button { margin-top: 20px; padding: 10px 20px; font-size: 16px; cursor: not-allowed; opacity: 0.5; }
 </style>
 </head>
 <body>
+<h1>SkyBotFactory - Statut du serveur</h1>
 
-<h1>Skybotfactory Status</h1>
+<div class="stat" id="serverStatus">🌐 État serveur : Chargement...</div>
+<div class="stat" id="userCount">👤 Nombre d'utilisateurs : Chargement...</div>
+<div class="stat" id="activeSessions">🔑 Sessions actives : Chargement...</div>
+<div class="stat" id="totalCredits">💰 Crédits distribués : Chargement...</div>
 
-<div class="status-container" id="statusContainer">
-    <div class="service">
-        <span>Serveur</span>
-        <span class="status-dot ok" id="serverStatus"></span>
-    </div>
-    <div class="service">
-        <span>API /login</span>
-        <span class="status-dot ok" id="apiLoginStatus"></span>
-    </div>
-    <div class="service">
-        <span>API /register</span>
-        <span class="status-dot ok" id="apiRegisterStatus"></span>
-    </div>
-    <div class="service">
-        <span>Base de données</span>
-        <span class="status-dot ok" id="dbStatus"></span>
-    </div>
-</div>
+<h2>Logs récents :</h2>
+<div id="logs">Chargement des logs...</div>
 
 <button disabled>Tester (Indisponible)</button>
 
 <script>
 const API_URL = "https://serveur-site-production-97d2.up.railway.app";
 
-// Fonction pour tester l'état d'un endpoint
-async function checkStatus(endpoint, elementId) {
-    const el = document.getElementById(elementId);
+async function loadStatus() {
     try {
-        const res = await fetch(endpoint);
-        if (res.ok) {
-            el.className = 'status-dot ok';
-        } else {
-            el.className = 'status-dot warning';
-        }
+        // État serveur
+        const statusRes = await fetch(`${API_URL}/status`);
+        const statusData = await statusRes.json();
+        document.getElementById('serverStatus').innerText = statusData.connected ? "🌐 État serveur : ✅ Actif" : "🌐 État serveur : ❌ Inactif";
+
+        // Utilisateurs
+        const usersRes = await fetch(`${API_URL}/users`);
+        const usersData = await usersRes.json();
+        document.getElementById('userCount').innerText = `👤 Nombre d'utilisateurs : ${usersData.length}`;
+
+        // Sessions (tokens)
+        const tokensRes = await fetch(`${API_URL}/tokens`); // on ajoutera route tokens côté serveur
+        const tokensData = await tokensRes.json();
+        document.getElementById('activeSessions').innerText = `🔑 Sessions actives : ${Object.keys(tokensData).length}`;
+
+        // Total crédits
+        const totalCredits = usersData.reduce((sum, u) => sum + (u.credits || 0), 0);
+        document.getElementById('totalCredits').innerText = `💰 Crédits distribués : ${totalCredits}`;
+
+        // Logs récents
+        const logsRes = await fetch(`${API_URL}/logs`); // route logs côté serveur
+        const logsData = await logsRes.json();
+        document.getElementById('logs').innerText = logsData.join('\n');
+
     } catch (err) {
-        el.className = 'status-dot error';
+        console.error(err);
+        document.getElementById('logs').innerText = "❌ Impossible de charger les informations du serveur";
     }
 }
 
-// Fonction pour tout checker
-async function updateStatus() {
-    checkStatus(`${API_URL}/status`, 'serverStatus');
-    checkStatus(`${API_URL}/login`, 'apiLoginStatus');
-    checkStatus(`${API_URL}/register`, 'apiRegisterStatus');
-    
-    // Test DB fictif (si tu veux tester la connexion à users.json)
-    try {
-        const res = await fetch(`${API_URL}/user/test@example.com`);
-        document.getElementById('dbStatus').className = res.ok ? 'status-dot ok' : 'status-dot warning';
-    } catch {
-        document.getElementById('dbStatus').className = 'status-dot error';
-    }
-}
-
-// Lancer le check toutes les 10 secondes
-updateStatus();
-setInterval(updateStatus, 10000);
+// Recharge toutes les 10 secondes
+loadStatus();
+setInterval(loadStatus, 10000);
 </script>
-
 </body>
 </html>
