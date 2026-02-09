@@ -26,7 +26,6 @@ async function login() {
 
         // Stockage local avec token
         localStorage.setItem("connected", "true");
-        localStorage.setItem("userId", data.user.id || "");
         localStorage.setItem("email", data.user.email);
         localStorage.setItem("credits", data.user.credits);
         localStorage.setItem("token", data.token); // <-- token ajouté
@@ -43,6 +42,7 @@ async function login() {
 async function register() {
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
+    const telephone = document.getElementById("telephone")?.value || ""; // <-- ajoute téléphone facultatif
 
     if (!email || !password) {
         alert("Veuillez remplir tous les champs");
@@ -53,7 +53,7 @@ async function register() {
         const res = await fetch(`${API_URL}/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify({ email, password, telephone })
         });
 
         const data = await res.json();
