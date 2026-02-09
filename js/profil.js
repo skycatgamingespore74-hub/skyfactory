@@ -15,14 +15,13 @@ async function updateProfile() {
     const newPassword = document.getElementById('password').value;
 
     try {
-        const res = await fetch(`${API_URL}/update-profile`, { // <-- nouvelle route
+        // Adapter l'URL pour correspondre au backend existant
+        const res = await fetch(`${API_URL}/profile/${email}`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` // <-- envoi du token
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                email: email,
                 newEmail: newEmail || undefined,
                 newPassword: newPassword || undefined,
                 newTelephone: newTelephone || undefined
