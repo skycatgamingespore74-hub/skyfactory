@@ -32,13 +32,13 @@ async function loadDashboard() {
         }
 
         // 2) Récupérer les infos utilisateur
-        const resUser = await fetch(`${API_URL}/user/${email}`);
+        const resUser = await fetch(`${API_URL}/profile/${email}`); // <-- correction ici
         if (!resUser.ok) throw new Error("Impossible de récupérer les infos utilisateur");
         const data = await resUser.json();
 
         // 3) Mise à jour crédits et affichage
-        document.getElementById("credits").innerText = data.credits;
-        localStorage.setItem("credits", data.credits);
+        document.getElementById("credits").innerText = data.user.credits; // <-- backend renvoie { user }
+        localStorage.setItem("credits", data.user.credits);
 
     } catch (err) {
         console.error(err);
