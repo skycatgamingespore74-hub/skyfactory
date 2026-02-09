@@ -3,109 +3,81 @@ const API_URL = "https://serveur-site-production-97d2.up.railway.app";
 /* ===================== LOGIN ===================== */
 async function login() {
     const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+        const password = document.getElementById("password").value;
 
-    if (!email || !password) {
-        alert("Veuillez remplir tous les champs");
-        return;
-    }
+            if (!email || !password) {
+                    alert("Veuillez remplir tous les champs");
+                            return;
+                                }
 
-    try {
-        const res = await fetch(`${API_URL}/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include", // envoi du cookie de session
-            body: JSON.stringify({ email, password })
-        });
+                                    try {
+                                            const res = await fetch(`${API_URL}/login`, {
+                                                        method: "POST",
+                                                                    headers: {
+                                                                                    "Content-Type": "application/json"
+                                                                                                },
+                                                                                                            body: JSON.stringify({
+                                                                                                                            email,
+                                                                                                                                            password
+                                                                                                                                                        })
+                                                                                                                                                                });
 
-        const data = await res.json();
+                                                                                                                                                                        const data = await res.json();
 
-        if (!res.ok) {
-            alert(data.error || "Compte inexistant ou mauvais identifiant");
-            return;
-        }
+                                                                                                                                                                                if (!res.ok) {
+                                                                                                                                                                                            alert(data.message || "Compte inexistant ou mauvais identifiant");
+                                                                                                                                                                                                        return;
+                                                                                                                                                                                                                }
 
-        window.location.href = "dashboard.html";
+                                                                                                                                                                                                                        // Stockage local
+                                                                                                                                                                                                                                localStorage.setItem("connected", "true");
+                                                                                                                                                                                                                                        localStorage.setItem("userId", data.user.id);
+                                                                                                                                                                                                                                                localStorage.setItem("email", data.user.email);
+                                                                                                                                                                                                                                                        localStorage.setItem("credits", data.user.credits);
 
-    } catch (err) {
-        console.error(err);
-        alert("Impossible de contacter le serveur");
-    }
-}
+                                                                                                                                                                                                                                                                window.location.href = "dashboard.html";
 
-/* ===================== REGISTER ===================== */
-async function register() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+                                                                                                                                                                                                                                                                    } catch (err) {
+                                                                                                                                                                                                                                                                            console.error(err);
+                                                                                                                                                                                                                                                                                    alert("Impossible de contacter le serveur");
+                                                                                                                                                                                                                                                                                        }
+                                                                                                                                                                                                                                                                                        }
 
-    if (!email || !password) {
-        alert("Veuillez remplir tous les champs");
-        return;
-    }
+                                                                                                                                                                                                                                                                                        /* ===================== REGISTER ===================== */
+                                                                                                                                                                                                                                                                                        async function register() {
+                                                                                                                                                                                                                                                                                            const email = document.getElementById("email").value;
+                                                                                                                                                                                                                                                                                                const password = document.getElementById("password").value;
 
-    try {
-        const res = await fetch(`${API_URL}/register`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ email, password })
-        });
+                                                                                                                                                                                                                                                                                                    if (!email || !password) {
+                                                                                                                                                                                                                                                                                                            alert("Veuillez remplir tous les champs");
+                                                                                                                                                                                                                                                                                                                    return;
+                                                                                                                                                                                                                                                                                                                        }
 
-        const data = await res.json();
+                                                                                                                                                                                                                                                                                                                            try {
+                                                                                                                                                                                                                                                                                                                                    const res = await fetch(`${API_URL}/register`, {
+                                                                                                                                                                                                                                                                                                                                                method: "POST",
+                                                                                                                                                                                                                                                                                                                                                            headers: {
+                                                                                                                                                                                                                                                                                                                                                                            "Content-Type": "application/json"
+                                                                                                                                                                                                                                                                                                                                                                                        },
+                                                                                                                                                                                                                                                                                                                                                                                                    body: JSON.stringify({
+                                                                                                                                                                                                                                                                                                                                                                                                                    email,
+                                                                                                                                                                                                                                                                                                                                                                                                                                    password
+                                                                                                                                                                                                                                                                                                                                                                                                                                                })
+                                                                                                                                                                                                                                                                                                                                                                                                                                                        });
 
-        if (!res.ok) {
-            alert(data.error || "Erreur lors de l'inscription");
-            return;
-        }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                const data = await res.json();
 
-        alert("Compte créé avec succès !");
-        window.location.href = "connexion.html";
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                        if (!res.ok) {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    alert(data.message || "Erreur lors de l'inscription");
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                return;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        }
 
-    } catch (err) {
-        console.error(err);
-        alert("Impossible de contacter le serveur");
-    }
-}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                alert("Compte créé avec succès !");
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        window.location.href = "connexion.html";
 
-/* ===================== CHECK SESSION ===================== */
-async function checkSession() {
-    try {
-        // ⚠️ Changement ici : /me -> /session
-        const res = await fetch(`${API_URL}/session`, {
-            method: "GET",
-            credentials: "include"
-        });
-
-        const data = await res.json();
-
-        if (!res.ok || !data.connected) {
-            return false; // pas connecté
-        }
-
-        return data.user; // connecté
-    } catch (err) {
-        console.error(err);
-        return false;
-    }
-}
-
-/* ===================== LOGOUT ===================== */
-async function logout() {
-    try {
-        const res = await fetch(`${API_URL}/logout`, {
-            method: "POST",
-            credentials: "include"
-        });
-
-        const data = await res.json();
-
-        if (res.ok && data.success) {
-            window.location.href = "connexion.html";
-        } else {
-            alert("Impossible de se déconnecter");
-        }
-    } catch (err) {
-        console.error(err);
-        alert("Impossible de se déconnecter");
-    }
-}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            } catch (err) {
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    console.error(err);
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            alert("Impossible de contacter le serveur");
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }
+                                                      
