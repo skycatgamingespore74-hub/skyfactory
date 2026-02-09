@@ -4,7 +4,7 @@ const SERVER_URL = 'https://serveur-site-production-97d2.up.railway.app';
 async function checkServerConnection() {
     const bar = document.getElementById('server-status-bar');
     try {
-        const response = await fetch(`${SERVER_URL}/status`); // juste le /status
+        const response = await fetch(`${SERVER_URL}/admin/status`); // juste le /status
         const data = await response.json();
 
         if (response.ok && data.connected) {
