@@ -50,7 +50,7 @@ async function loadAdmin() {
 
     try {
         // Statut serveur
-        const resStatus = await fetch(`${API_URL}/status`);
+        const resStatus = await fetch(`${API_URL}/admin/status`);
         const dataStatus = await resStatus.json();
         statusEl.innerText = dataStatus.connected ? "✅ Actif" : "❌ Inactif";
 
