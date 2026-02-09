@@ -14,7 +14,7 @@ async function login() {
         const res = await fetch(`${API_URL}/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            credentials: "include", // très important pour envoyer le cookie
+            credentials: "include", // envoi du cookie de session
             body: JSON.stringify({ email, password })
         });
 
@@ -25,7 +25,6 @@ async function login() {
             return;
         }
 
-        // Plus besoin de localStorage pour l'état de connexion
         window.location.href = "dashboard.html";
 
     } catch (err) {
@@ -71,20 +70,19 @@ async function register() {
 /* ===================== CHECK SESSION ===================== */
 async function checkSession() {
     try {
-        const res = await fetch(`${API_URL}/me`, {
+        // ⚠️ Changement ici : /me -> /session
+        const res = await fetch(`${API_URL}/session`, {
             method: "GET",
             credentials: "include"
         });
 
         const data = await res.json();
 
-        if (!res.ok || !data.success) {
-            // Non connecté
-            return false;
+        if (!res.ok || !data.connected) {
+            return false; // pas connecté
         }
 
-        // Connecté
-        return data.user;
+        return data.user; // connecté
     } catch (err) {
         console.error(err);
         return false;
@@ -103,6 +101,8 @@ async function logout() {
 
         if (res.ok && data.success) {
             window.location.href = "connexion.html";
+        } else {
+            alert("Impossible de se déconnecter");
         }
     } catch (err) {
         console.error(err);
