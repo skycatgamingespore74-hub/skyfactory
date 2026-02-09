@@ -22,8 +22,8 @@
 
 <div class="status">🌐 État serveur : <span id="server-status">Chargement...</span></div>
 <div class="info">👤 Nombre d'utilisateurs : <span id="user-count">Chargement...</span></div>
-<div class="info">🔑 Sessions actives : <span id="session-count">Chargement...</span></div>
-<div class="info">💰 Crédits distribués : <span id="credits-count">Chargement...</span></div>
+<div class="info">🔑 Sessions actives : <span id="session-count">N/A</span></div>
+<div class="info">💰 Crédits distribués : <span id="credits-count">N/A</span></div>
 
 <h2>Logs récents :</h2>
 <div class="logs" id="logs">Chargement...</div>
@@ -57,29 +57,28 @@ async function updateStatus() {
     const testBtn = document.getElementById('test-button');
 
     try {
-        const res = await fetch(`${API_URL}/status`);
-        if (!res.ok) throw new Error("Serveur indisponible");
+        // Statut serveur
+        const resStatus = await fetch(`${API_URL}/admin/status`);
+        if (!resStatus.ok) throw new Error("Serveur indisponible");
+        const dataStatus = await resStatus.json();
 
-        const data = await res.json();
+        statusEl.innerText = dataStatus.connected ? "✅ Actif" : "❌ Inactif";
+        userEl.innerText = dataStatus.usersCount || "0";
+        sessionEl.innerText = "N/A";
+        creditsEl.innerText = "N/A";
 
-        statusEl.innerText = data.connected ? "✅ Actif" : "❌ Inactif";
-        userEl.innerText = data.userCount || "0";
-        sessionEl.innerText = data.sessionCount || "0";
-        creditsEl.innerText = data.creditsDistributed || "0";
-        logsEl.innerText = (data.logs && data.logs.length) ? data.logs.join("\n") : "Aucun log récent.";
+        // Logs
+        const resLogs = await fetch(`${API_URL}/admin/logs`);
+        const dataLogs = await resLogs.json();
+        logsEl.innerText = dataLogs.logs || "Aucun log récent.";
 
         // Activer le bouton seulement si le serveur est actif
-        testBtn.disabled = !data.connected;
+        testBtn.disabled = !dataStatus.connected;
 
-        // Remplir le tableau des fonctions
+        // Tableau des fonctions existantes seulement
         const functions = [
-            { name: "Inscription", method: "POST", url: "/register" },
-            { name: "Connexion", method: "POST", url: "/login" },
-            { name: "Vérifier session", method: "POST", url: "/check-session" },
-            { name: "Déconnexion", method: "POST", url: "/logout" },
-            { name: "Récupérer utilisateur", method: "GET", url: "/user/:email" },
-            { name: "Mettre à jour profil", method: "POST", url: "/update" },
-            { name: "Acheter crédits", method: "POST", url: "/buy-credits" },
+            { name: "Statut admin", method: "GET", url: "/admin/status" },
+            { name: "Logs admin", method: "GET", url: "/admin/logs" },
         ];
 
         const tbody = document.getElementById('functions-table');
@@ -90,7 +89,7 @@ async function updateStatus() {
                 <td>${fn.name}</td>
                 <td>${fn.method}</td>
                 <td>${fn.url}</td>
-                <td>${data.connected ? "✅ Disponible" : "❌ Indisponible"}</td>
+                <td>${dataStatus.connected ? "✅ Disponible" : "❌ Indisponible"}</td>
             `;
             tbody.appendChild(tr);
         }
@@ -102,7 +101,7 @@ async function updateStatus() {
         sessionEl.innerText = "N/A";
         creditsEl.innerText = "N/A";
         logsEl.innerText = "Impossible de charger les informations du serveur.";
-        document.getElementById('test-button').disabled = true;
+        testBtn.disabled = true;
     }
 }
 
