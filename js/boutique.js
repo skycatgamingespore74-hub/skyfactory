@@ -4,7 +4,7 @@ const API_URL = "https://serveur-site-production-97d2.up.railway.app";
 async function acheterCredits(credits) {
     const connected = localStorage.getItem("connected");
     const email = localStorage.getItem("email");
-    const token = localStorage.getItem("token"); // <-- récupérer le token
+    const token = localStorage.getItem("token");
 
     if (!connected || !email || !token) {
         alert("Connecte-toi pour acheter des crédits !");
@@ -26,7 +26,7 @@ async function acheterCredits(credits) {
         }
 
         // 2) Récupérer l'utilisateur depuis le backend
-        const resUser = await fetch(`${API_URL}/profile/${email}`); // <-- GET et correction de la route
+        const resUser = await fetch(`${API_URL}/profile/${email}`);
         if (!resUser.ok) throw new Error("Impossible de récupérer les infos utilisateur");
         const userData = await resUser.json();
         const user = userData.user;
@@ -34,17 +34,13 @@ async function acheterCredits(credits) {
         // 3) Calculer le nouveau total de crédits
         const newCredits = (user.credits || 0) + credits;
 
-        // 4) Envoyer la mise à jour au backend
-        const resUpdate = await fetch(`${API_URL}/update-credits`, { // <-- correspond à ton backend
+        // 4) Envoyer la mise à jour au backend via la route correcte
+        const resUpdate = await fetch(`${API_URL}/credits/${email}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                email: email,
-                token: token,
-                creditsToAdd: credits
-            })
+            body: JSON.stringify({ amount: credits }) // <-- c'est "amount" et pas "creditsToAdd"
         });
 
         const data = await resUpdate.json();
