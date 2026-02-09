@@ -15,14 +15,14 @@ async function updateProfile() {
     const newPassword = document.getElementById('password').value;
 
     try {
-        const res = await fetch(`${API_URL}/update`, {
+        const res = await fetch(`${API_URL}/update-profile`, { // <-- nouvelle route
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // <-- envoi du token
             },
             body: JSON.stringify({
                 email: email,
-                page: 'profil',
                 newEmail: newEmail || undefined,
                 newPassword: newPassword || undefined,
                 newTelephone: newTelephone || undefined
