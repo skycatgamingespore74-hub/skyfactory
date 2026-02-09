@@ -26,30 +26,24 @@ async function acheterCredits(credits) {
         }
 
         // 2) Récupérer l'utilisateur depuis le backend
-        const resUser = await fetch(`${API_URL}/user/${email}`, {
-            method: "POST",
-            headers: { 
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}` // <-- envoi du token si besoin
-            },
-            body: JSON.stringify({ email })
-        });
+        const resUser = await fetch(`${API_URL}/profile/${email}`); // <-- GET et correction de la route
         if (!resUser.ok) throw new Error("Impossible de récupérer les infos utilisateur");
-        const user = await resUser.json();
+        const userData = await resUser.json();
+        const user = userData.user;
 
         // 3) Calculer le nouveau total de crédits
         const newCredits = (user.credits || 0) + credits;
 
         // 4) Envoyer la mise à jour au backend
-        const resUpdate = await fetch(`${API_URL}/update-credits`, { // <-- nouvelle route
+        const resUpdate = await fetch(`${API_URL}/update-credits`, { // <-- correspond à ton backend
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}` // <-- envoi du token
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
                 email: email,
-                newCredits: newCredits
+                token: token,
+                creditsToAdd: credits
             })
         });
 
