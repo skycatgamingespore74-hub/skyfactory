@@ -1,29 +1,21 @@
 const SERVER_URL = 'https://serveur-site-production-97d2.up.railway.app';
 
+// Fonction de test serveur
 async function checkServerConnection() {
     const bar = document.getElementById('server-status-bar');
-
     try {
-        const response = await fetch(`${SERVER_URL}/status`, {
-            cache: 'no-store' // 🔥 empêche le 304
-        });
+        const response = await fetch(`${SERVER_URL}/status`); // juste le /status
+        const data = await response.json();
 
-        // Si le serveur répond (200)
-        if (response.ok) {
-            const data = await response.json();
-
-            if (data.connected === true) {
-                bar.textContent = '🟢 Connecté au serveur';
-                document.body.classList.add('connected');
-                document.body.classList.remove('disconnected');
-                return;
-            }
+        if (response.ok && data.connected) {
+            bar.textContent = 'Connecté au serveur';
+            document.body.classList.add('connected');
+            document.body.classList.remove('disconnected');
+        } else {
+            throw new Error('Serveur non accessible');
         }
-
-        throw new Error('Réponse serveur invalide');
-
     } catch (err) {
-        bar.textContent = '🔴 Non connecté au serveur';
+        bar.textContent = 'Non connecté au serveur';
         document.body.classList.add('disconnected');
         document.body.classList.remove('connected');
         console.error('Erreur serveur:', err);
