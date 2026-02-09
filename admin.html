@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>SkyBotFactory - Admin</title>
+<style>
+    body { font-family: Arial, sans-serif; background: #f4f6f8; color: #333; padding: 20px; }
+    h1 { color: #2c3e50; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    th, td { padding: 8px 12px; border: 1px solid #ddd; text-align: left; }
+    th { background: #2c3e50; color: #fff; }
+    button { padding: 5px 10px; margin: 2px; cursor: pointer; border: none; color: #fff; }
+    .edit-btn { background: #3498db; }
+    .delete-btn { background: #e74c3c; }
+    .logout-btn { background: #f39c12; }
+    .logs { background: #fff; padding: 10px; border: 1px solid #ddd; max-height: 200px; overflow-y: auto; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<h1>SkyBotFactory - Admin</h1>
+
+<h2>Statut serveur</h2>
+<div>🌐 État serveur : <span id="server-status">Chargement...</span></div>
+<div class="logs" id="logs">Chargement des logs...</div>
+
+<h2>Utilisateurs</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Téléphone</th>
+            <th>Page actuelle</th>
+            <th>Crédits</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="users-table">
+        <!-- Utilisateurs chargés dynamiquement -->
+    </tbody>
+</table>
+
+<script>
+const API_URL = "https://serveur-site-production-97d2.up.railway.app";
+
+async function loadAdmin() {
+    const statusEl = document.getElementById('server-status');
+    const logsEl = document.getElementById('logs');
+    const tbody = document.getElementById('users-table');
+
+    try {
+        // Statut serveur
+        const resStatus = await fetch(`${API_URL}/status`);
+        const dataStatus = await resStatus.json();
+        statusEl.innerText = dataStatus.connected ? "✅ Actif" : "❌ Inactif";
+
+        logsEl.innerText = (dataStatus.logs && dataStatus.logs.length)
+            ? dataStatus.logs.join("\n")
+            : "Aucun log récent.";
+
+        // Utilisateurs
+        const resUsers = await fetch(`${API_URL}/users`);
+        const users = await resUsers.json();
+
+        tbody.innerHTML = '';
+        for (const user of users) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${user.email}</td>
+                <td>${user.telephone}</td>
+                <td>${user.page}</td>
+                <td>${user.credits}</td>
+                <td>
+                    <button class="edit-btn" onclick="editCredits('${user.email}')">Modifier crédits</button>
+                    <button class="logout-btn" onclick="logoutUser('${user.email}')">Déconnexion</button>
+                    <button class="delete-btn" onclick="deleteUser('${user.email}')">Supprimer</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        }
+    } catch (err) {
+        console.error(err);
+        statusEl.innerText = "❌ Inactif";
+        logsEl.innerText = "Impossible de charger les infos serveur.";
+        tbody.innerHTML = '';
+    }
+}
+
+// Modifier crédits
+async function editCredits(email) {
+    const newCredits = prompt("Nouvelle valeur des crédits pour " + email);
+    if (!newCredits) return;
+    try {
+        const res = await fetch(`${API_URL}/update`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, newCredits: parseInt(newCredits), page: "admin" })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Erreur lors de la mise à jour");
+        alert("Crédits mis à jour !");
+        loadAdmin();
+    } catch (err) {
+        console.error(err);
+        alert("Impossible de modifier les crédits");
+    }
+}
+
+// Forcer déconnexion
+async function logoutUser(email) {
+    try {
+        const res = await fetch(`${API_URL}/logout`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email })
+        });
+        alert("Utilisateur déconnecté !");
+        loadAdmin();
+    } catch (err) {
+        console.error(err);
+        alert("Impossible de déconnecter l'utilisateur");
+    }
+}
+
+// Supprimer utilisateur
+async function deleteUser(email) {
+    if (!confirm("Supprimer définitivement cet utilisateur ?")) return;
+    try {
+        const res = await fetch(`${API_URL}/delete-user`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email })
+        });
+        alert("Utilisateur supprimé !");
+        loadAdmin();
+    } catch (err) {
+        console.error(err);
+        alert("Impossible de supprimer l'utilisateur");
+    }
+}
+
+// Rafraîchir toutes les 10 secondes
+loadAdmin();
+setInterval(loadAdmin, 10000);
+</script>
+
+</body>
+</html>
