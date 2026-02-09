@@ -51,25 +51,29 @@ async function loadAdmin() {
     try {
         // Statut serveur
         const resStatus = await fetch(`${API_URL}/admin/status`);
+        if (!resStatus.ok) throw new Error("Serveur indisponible");
         const dataStatus = await resStatus.json();
+
+        // Afficher immédiatement le statut serveur
         statusEl.innerText = dataStatus.connected ? "✅ Actif" : "❌ Inactif";
 
+        // Logs
         logsEl.innerText = (dataStatus.logs && dataStatus.logs.length)
             ? dataStatus.logs.join("\n")
             : "Aucun log récent.";
 
         // Utilisateurs
         const resUsers = await fetch(`${API_URL}/users`);
-        const users = await resUsers.json();
-
+        const users = await resUsers.ok ? await resUsers.json() : [];
         tbody.innerHTML = '';
+
         for (const user of users) {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${user.email}</td>
-                <td>${user.telephone}</td>
-                <td>${user.page}</td>
-                <td>${user.credits}</td>
+                <td>${user.email || "N/A"}</td>
+                <td>${user.telephone || "N/A"}</td>
+                <td>${user.page || "N/A"}</td>
+                <td>${user.credits || 0}</td>
                 <td>
                     <button class="edit-btn" onclick="editCredits('${user.email}')">Modifier crédits</button>
                     <button class="logout-btn" onclick="logoutUser('${user.email}')">Déconnexion</button>
@@ -78,6 +82,7 @@ async function loadAdmin() {
             `;
             tbody.appendChild(tr);
         }
+
     } catch (err) {
         console.error(err);
         statusEl.innerText = "❌ Inactif";
