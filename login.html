@@ -1,68 +1,79 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <title>Connexion Administrateur</title>
-    <style>
-        /* Arrière-plan montagne */
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background: url('https://i.imgur.com/OjYqFUE.png') no-repeat center center fixed;
-            background-size: cover;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+<meta charset="UTF-8">
+<title>Connexion Administrateur</title>
+<style>
+/* ===================== Fond montagne bleu/orange ===================== */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to top, #020617 0%, #2563eb 40%, #f97316 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
 
-        /* Loader */
-        #loader {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 1.5em;
-            z-index: 1000;
-        }
+/* Loader */
+#loader {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 1.5em;
+    z-index: 1000;
+}
 
-        /* Formulaire */
-        #loginForm {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.3);
-            text-align: center;
-            display: none; /* affiché après validation du token */
-        }
+/* Formulaire */
+#loginForm {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    text-align: center;
+    display: none; /* affiché après validation du token */
+}
 
-        #loginForm input {
-            padding: 10px;
-            margin: 10px 0;
-            width: 80%;
-            font-size: 1em;
-        }
+#loginForm h1 {
+    color: #2563eb;
+    margin-bottom: 20px;
+}
 
-        #loginForm button {
-            padding: 10px 20px;
-            font-size: 1em;
-            cursor: pointer;
-            background-color: #0077ff;
-            border: none;
-            color: white;
-            border-radius: 5px;
-        }
+#loginForm input {
+    padding: 10px;
+    margin: 10px 0;
+    width: 80%;
+    font-size: 1em;
+    border: 1px solid #2563eb;
+    border-radius: 5px;
+}
 
-    </style>
+#loginForm button {
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    background-color: #f97316;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+#loginForm button:hover {
+    background-color: #fb923c;
+}
+
+</style>
 </head>
 <body>
 
-<div id="loader">🔄 Vérification en cours...</div>
+<div id="loader">🔄 Vérification du token...</div>
 
 <form id="loginForm">
     <h1>Connexion Administrateur</h1>
@@ -84,7 +95,7 @@
 
     try {
         // Vérification du token côté serveur
-        const res = await fetch('/validate-token', {
+        const res = await fetch(`/admin/validate-token`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ token })
@@ -93,7 +104,8 @@
         const data = await res.json();
 
         if (!data.success) {
-            // Token invalide -> redirection accueil
+            // Token invalide ou expiré -> redirection accueil
+            alert("Token invalide ou expiré !");
             window.location.href = 'index.html';
             return;
         }
@@ -103,7 +115,8 @@
         document.getElementById('loginForm').style.display = 'block';
 
     } catch (err) {
-        console.error(err);
+        console.error("Erreur vérification token:", err);
+        alert("Erreur serveur !");
         window.location.href = 'index.html';
     }
 })();
@@ -111,11 +124,29 @@
 // Soumission du formulaire
 document.getElementById('loginForm').addEventListener('submit', async e => {
     e.preventDefault();
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
 
-    // Ici tu peux faire le fetch vers ton endpoint login admin réel
-    alert(`Connexion : ${username} / ${password}`);
+    if (!username || !password) return;
+
+    try {
+        const res = await fetch('/admin/login-submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            alert("Connexion réussie !");
+            window.location.href = '/admin/dashboard';
+        } else {
+            alert("Erreur : " + (data.error || "Identifiants incorrects"));
+        }
+    } catch (err) {
+        console.error("Erreur login :", err);
+        alert("Erreur serveur, réessayez plus tard.");
+    }
 });
 </script>
 
