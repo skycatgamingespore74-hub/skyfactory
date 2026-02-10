@@ -72,7 +72,7 @@
     <input type="text" id="username" placeholder="Nom d'utilisateur" required><br>
     <input type="password" id="password" placeholder="Mot de passe" required><br>
     <button type="submit">Se connecter</button>
-    <div id="errorMessage">🔒 Lien invalide ou expiré. Redirection dans <span id="countdown">5</span> secondes...</div>
+    <div id="errorMessage">🔒 <span id="errorText">Lien invalide ou expiré.</span> Redirection dans <span id="countdown">5</span> secondes...</div>
 </form>
 
 <script>
@@ -86,7 +86,6 @@
     }
 
     try {
-        // Vérification token auprès du serveur admin
         const res = await fetch('https://serveur-site-production-97d2.up.railway.app/admin/validate-token', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -98,9 +97,11 @@
         document.getElementById('loader').style.display = 'none';
 
         if (!data.success) {
-            // Token invalide -> affichage erreur + compteur
             const errorDiv = document.getElementById('errorMessage');
             const countdownSpan = document.getElementById('countdown');
+            const errorText = document.getElementById('errorText');
+
+            errorText.textContent = data.error || 'Lien invalide ou expiré.';
             errorDiv.style.display = 'block';
 
             let countdown = 5;
@@ -112,11 +113,10 @@
                     window.location.href = 'index.html';
                 }
             }, 1000);
-
             return;
         }
 
-        // Token valide -> afficher le formulaire
+        // Token valide -> afficher formulaire
         document.getElementById('loginForm').style.display = 'block';
 
     } catch (err) {
@@ -127,11 +127,50 @@
 
 document.getElementById('loginForm').addEventListener('submit', async e => {
     e.preventDefault();
+
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
 
-    // Appel possible à ton endpoint login admin réel
-    alert(`Connexion : ${username} / ${password}`);
+    try {
+        const res = await fetch('https://serveur-site-production-97d2.up.railway.app/admin/login-submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password, token })
+        });
+
+        const data = await res.json();
+
+        if (!data.success) {
+            const errorDiv = document.getElementById('errorMessage');
+            const countdownSpan = document.getElementById('countdown');
+            const errorText = document.getElementById('errorText');
+
+            errorText.textContent = data.error || 'Erreur connexion.';
+            errorDiv.style.display = 'block';
+
+            let countdown = 5;
+            const interval = setInterval(() => {
+                countdown--;
+                countdownSpan.textContent = countdown;
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    window.location.href = 'index.html';
+                }
+            }, 1000);
+            return;
+        }
+
+        // Login réussi
+        alert('Connexion réussie !');
+        window.location.href = '/admin/dashboard.html'; // Page admin à créer
+
+    } catch (err) {
+        console.error('Erreur login-submit:', err);
+        alert('❌ Erreur serveur, réessayez plus tard.');
+    }
 });
 </script>
 
