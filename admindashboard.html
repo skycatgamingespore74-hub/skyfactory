@@ -100,7 +100,7 @@ async function initDashboard() {
     const valid = await checkSession();
     if (!valid) { 
         localStorage.removeItem("sessionId");
-        window.location.href = "/"; 
+        window.location.href = "index.html"; 
         return; 
     }
     document.getElementById("loader").style.display = "none";
