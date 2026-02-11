@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Admin - Lecture seule</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f0f2f5;
+        margin: 0;
+        padding: 0;
+    }
+    header {
+        background: #0077ff;
+        color: white;
+        padding: 20px;
+        text-align: center;
+    }
+    main {
+        padding: 20px;
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+    .card {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        flex: 1 1 300px;
+    }
+    h2 {
+        margin-top: 0;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background: #f7f7f7;
+    }
+    #logs {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>Dashboard Admin (Lecture seule)</h1>
+</header>
+
+<main>
+    <!-- Statut serveur -->
+    <div class="card">
+        <h2>Statut Serveur</h2>
+        <p id="serverStatus">🔄 Vérification...</p>
+        <p>Dernière mise à jour : <span id="serverTime">--:--:--</span></p>
+    </div>
+
+    <!-- Stats globales -->
+    <div class="card">
+        <h2>Stats Globales</h2>
+        <ul>
+            <li>Nombre total de visites : <span id="totalVisits">0</span></li>
+            <li>Nombre d’utilisateurs uniques : <span id="uniqueIPs">0</span></li>
+        </ul>
+    </div>
+
+    <!-- Logs récents -->
+    <div class="card">
+        <h2>Logs récents</h2>
+        <div id="logs">
+            <table>
+                <thead>
+                    <tr><th>Heure</th><th>IP</th><th>Événement</th></tr>
+                </thead>
+                <tbody id="logsTable">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Utilisateurs observés -->
+    <div class="card">
+        <h2>Utilisateurs (IP)</h2>
+        <table>
+            <thead>
+                <tr><th>IP</th><th>Nombre de visites</th><th>Score comportemental</th></tr>
+            </thead>
+            <tbody id="usersTable">
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<script>
+    // 🟢 Simulation de données
+    const users = [
+        { ip: "192.168.1.10", visits: 5, score: 1 },
+        { ip: "192.168.1.20", visits: 2, score: 0 },
+        { ip: "10.0.0.5", visits: 8, score: 3 }
+    ];
+
+    const logs = [
+        { time: "21:00:01", ip: "192.168.1.10", event: "Connexion site" },
+        { time: "21:01:12", ip: "192.168.1.20", event: "Tentative login" },
+        { time: "21:02:30", ip: "10.0.0.5", event: "Page /admin visitée" },
+        { time: "21:03:15", ip: "192.168.1.10", event: "Page /login visitée" },
+        { time: "21:04:00", ip: "10.0.0.5", event: "Connexion site" }
+    ];
+
+    // Mise à jour dashboard
+    function updateDashboard() {
+        document.getElementById("serverStatus").textContent = "🟢 Serveur actif";
+        document.getElementById("serverTime").textContent = new Date().toLocaleTimeString();
+
+        document.getElementById("totalVisits").textContent = logs.length;
+        document.getElementById("uniqueIPs").textContent = users.length;
+
+        const logsTable = document.getElementById("logsTable");
+        logsTable.innerHTML = "";
+        logs.forEach(log => {
+            const row = document.createElement("tr");
+            row.innerHTML = `<td>${log.time}</td><td>${log.ip}</td><td>${log.event}</td>`;
+            logsTable.appendChild(row);
+        });
+
+        const usersTable = document.getElementById("usersTable");
+        usersTable.innerHTML = "";
+        users.forEach(u => {
+            const row = document.createElement("tr");
+            row.innerHTML = `<td>${u.ip}</td><td>${u.visits}</td><td>${u.score}</td>`;
+            usersTable.appendChild(row);
+        });
+    }
+
+    updateDashboard();
+    setInterval(updateDashboard, 5000); // rafraîchit toutes les 5 sec pour simulation
+</script>
+
+</body>
+</html>
