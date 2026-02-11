@@ -3,34 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <title>Dashboard Admin - Lecture seule</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
     body {
-        font-family: Arial, sans-serif;
-        background: #f0f2f5;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f0f3f7;
         margin: 0;
         padding: 0;
     }
     header {
-        background: #0077ff;
+        background: linear-gradient(90deg, #0077ff, #00d4ff);
         color: white;
         padding: 20px;
         text-align: center;
+        font-size: 1.5em;
+        font-weight: bold;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
     main {
         padding: 20px;
-        display: flex;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 20px;
-        flex-wrap: wrap;
     }
     .card {
         background: white;
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        flex: 1 1 300px;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        display: flex;
+        flex-direction: column;
     }
     h2 {
         margin-top: 0;
+        color: #0077ff;
     }
     table {
         width: 100%;
@@ -40,7 +46,7 @@
     th, td {
         border: 1px solid #ddd;
         padding: 8px;
-        text-align: left;
+        text-align: center;
     }
     th {
         background: #f7f7f7;
@@ -49,13 +55,17 @@
         max-height: 200px;
         overflow-y: auto;
     }
+    .score-low { color: red; font-weight: bold; }
+    .score-medium { color: orange; font-weight: bold; }
+    .score-high { color: green; font-weight: bold; }
+    canvas {
+        margin-top: 15px;
+    }
 </style>
 </head>
 <body>
 
-<header>
-    <h1>Dashboard Admin (Lecture seule)</h1>
-</header>
+<header>🌟 Dashboard Admin Waouw (Lecture seule)</header>
 
 <main>
     <!-- Statut serveur -->
@@ -72,6 +82,7 @@
             <li>Nombre total de visites : <span id="totalVisits">0</span></li>
             <li>Nombre d’utilisateurs uniques : <span id="uniqueIPs">0</span></li>
         </ul>
+        <canvas id="visitsChart" height="150"></canvas>
     </div>
 
     <!-- Logs récents -->
@@ -117,6 +128,38 @@
         { time: "21:04:00", ip: "10.0.0.5", event: "Connexion site" }
     ];
 
+    // Graphique visites
+    const visitsCtx = document.getElementById("visitsChart").getContext("2d");
+    const visitsChart = new Chart(visitsCtx, {
+        type: 'line',
+        data: {
+            labels: logs.map(l => l.time),
+            datasets: [{
+                label: 'Visites dans le temps',
+                data: logs.map((_, i) => i + 1),
+                borderColor: '#0077ff',
+                backgroundColor: 'rgba(0,119,255,0.2)',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    function scoreClass(score) {
+        if (score <= 1) return 'score-low';
+        if (score === 2) return 'score-medium';
+        return 'score-high';
+    }
+
     // Mise à jour dashboard
     function updateDashboard() {
         document.getElementById("serverStatus").textContent = "🟢 Serveur actif";
@@ -137,13 +180,18 @@
         usersTable.innerHTML = "";
         users.forEach(u => {
             const row = document.createElement("tr");
-            row.innerHTML = `<td>${u.ip}</td><td>${u.visits}</td><td>${u.score}</td>`;
+            row.innerHTML = `<td>${u.ip}</td><td>${u.visits}</td><td class="${scoreClass(u.score)}">${u.score}</td>`;
             usersTable.appendChild(row);
         });
+
+        // Mise à jour graphique
+        visitsChart.data.labels = logs.map(l => l.time);
+        visitsChart.data.datasets[0].data = logs.map((_, i) => i + 1);
+        visitsChart.update();
     }
 
     updateDashboard();
-    setInterval(updateDashboard, 5000); // rafraîchit toutes les 5 sec pour simulation
+    setInterval(updateDashboard, 5000); // rafraîchit toutes les 5 sec
 </script>
 
 </body>
