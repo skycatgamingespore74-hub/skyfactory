@@ -5,27 +5,63 @@
 <title>Dashboard Admin - Lecture seule</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: #f0f3f7;
-        margin: 0;
-        padding: 0;
-    }
+    /* Reset et police */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f3f7; }
+
+    /* Header */
     header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         background: linear-gradient(90deg, #0077ff, #00d4ff);
         color: white;
-        padding: 20px;
-        text-align: center;
-        font-size: 1.5em;
+        padding: 15px 20px;
+        font-size: 1.3em;
         font-weight: bold;
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
     }
+
+    /* Hamburger */
+    .hamburger {
+        display: none;
+        flex-direction: column;
+        cursor: pointer;
+    }
+    .hamburger div {
+        width: 25px; height: 3px; background: white; margin: 4px 0;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        position: fixed;
+        top: 0; left: 0;
+        width: 220px;
+        height: 100%;
+        background: white;
+        box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        transition: transform 0.3s ease;
+    }
+    .sidebar.hide { transform: translateX(-100%); }
+
+    .sidebar a { text-decoration: none; color: #0077ff; font-weight: bold; }
+
+    /* Main content */
     main {
+        margin-left: 240px;
         padding: 20px;
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
         gap: 20px;
     }
+
     .card {
         background: white;
         padding: 20px;
@@ -34,38 +70,44 @@
         display: flex;
         flex-direction: column;
     }
-    h2 {
-        margin-top: 0;
-        color: #0077ff;
-    }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-    }
-    th, td {
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: center;
-    }
-    th {
-        background: #f7f7f7;
-    }
-    #logs {
-        max-height: 200px;
-        overflow-y: auto;
-    }
+
+    h2 { color: #0077ff; margin-bottom: 10px; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+    th { background: #f7f7f7; }
+
+    #logs { max-height: 200px; overflow-y: auto; }
+
     .score-low { color: red; font-weight: bold; }
     .score-medium { color: orange; font-weight: bold; }
     .score-high { color: green; font-weight: bold; }
-    canvas {
-        margin-top: 15px;
+
+    canvas { margin-top: 15px; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+        main { margin-left: 0; }
+        .sidebar { transform: translateX(-100%); }
+        .hamburger { display: flex; }
     }
 </style>
 </head>
 <body>
 
-<header>🌟 Dashboard Admin Waouw (Lecture seule)</header>
+<header>
+    🌟 Dashboard Admin
+    <div class="hamburger" onclick="toggleSidebar()">
+        <div></div><div></div><div></div>
+    </div>
+</header>
+
+<div class="sidebar" id="sidebar">
+    <a href="#">Statut Serveur</a>
+    <a href="#">Stats Globales</a>
+    <a href="#">Logs</a>
+    <a href="#">Utilisateurs</a>
+</div>
 
 <main>
     <!-- Statut serveur -->
@@ -93,8 +135,7 @@
                 <thead>
                     <tr><th>Heure</th><th>IP</th><th>Événement</th></tr>
                 </thead>
-                <tbody id="logsTable">
-                </tbody>
+                <tbody id="logsTable"></tbody>
             </table>
         </div>
     </div>
@@ -106,92 +147,88 @@
             <thead>
                 <tr><th>IP</th><th>Nombre de visites</th><th>Score comportemental</th></tr>
             </thead>
-            <tbody id="usersTable">
-            </tbody>
+            <tbody id="usersTable"></tbody>
         </table>
     </div>
 </main>
 
 <script>
-    // 🟢 Simulation de données
-    const users = [
-        { ip: "192.168.1.10", visits: 5, score: 1 },
-        { ip: "192.168.1.20", visits: 2, score: 0 },
-        { ip: "10.0.0.5", visits: 8, score: 3 }
-    ];
+function toggleSidebar() {
+    document.getElementById("sidebar").classList.toggle("hide");
+}
 
-    const logs = [
-        { time: "21:00:01", ip: "192.168.1.10", event: "Connexion site" },
-        { time: "21:01:12", ip: "192.168.1.20", event: "Tentative login" },
-        { time: "21:02:30", ip: "10.0.0.5", event: "Page /admin visitée" },
-        { time: "21:03:15", ip: "192.168.1.10", event: "Page /login visitée" },
-        { time: "21:04:00", ip: "10.0.0.5", event: "Connexion site" }
-    ];
+// 🟢 Simulation de données
+const users = [
+    { ip: "192.168.1.10", visits: 5, score: 1 },
+    { ip: "192.168.1.20", visits: 2, score: 0 },
+    { ip: "10.0.0.5", visits: 8, score: 3 }
+];
 
-    // Graphique visites
-    const visitsCtx = document.getElementById("visitsChart").getContext("2d");
-    const visitsChart = new Chart(visitsCtx, {
-        type: 'line',
-        data: {
-            labels: logs.map(l => l.time),
-            datasets: [{
-                label: 'Visites dans le temps',
-                data: logs.map((_, i) => i + 1),
-                borderColor: '#0077ff',
-                backgroundColor: 'rgba(0,119,255,0.2)',
-                fill: true,
-                tension: 0.3
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                y: { beginAtZero: true }
-            }
-        }
+const logs = [
+    { time: "21:00:01", ip: "192.168.1.10", event: "Connexion site" },
+    { time: "21:01:12", ip: "192.168.1.20", event: "Tentative login" },
+    { time: "21:02:30", ip: "10.0.0.5", event: "Page /admin visitée" },
+    { time: "21:03:15", ip: "192.168.1.10", event: "Page /login visitée" },
+    { time: "21:04:00", ip: "10.0.0.5", event: "Connexion site" }
+];
+
+// Graphique visites
+const visitsCtx = document.getElementById("visitsChart").getContext("2d");
+const visitsChart = new Chart(visitsCtx, {
+    type: 'line',
+    data: {
+        labels: logs.map(l => l.time),
+        datasets: [{
+            label: 'Visites dans le temps',
+            data: logs.map((_, i) => i + 1),
+            borderColor: '#0077ff',
+            backgroundColor: 'rgba(0,119,255,0.2)',
+            fill: true,
+            tension: 0.3
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+    }
+});
+
+function scoreClass(score) {
+    if (score <= 1) return 'score-low';
+    if (score === 2) return 'score-medium';
+    return 'score-high';
+}
+
+function updateDashboard() {
+    document.getElementById("serverStatus").textContent = "🟢 Serveur actif";
+    document.getElementById("serverTime").textContent = new Date().toLocaleTimeString();
+    document.getElementById("totalVisits").textContent = logs.length;
+    document.getElementById("uniqueIPs").textContent = users.length;
+
+    const logsTable = document.getElementById("logsTable");
+    logsTable.innerHTML = "";
+    logs.forEach(log => {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${log.time}</td><td>${log.ip}</td><td>${log.event}</td>`;
+        logsTable.appendChild(row);
     });
 
-    function scoreClass(score) {
-        if (score <= 1) return 'score-low';
-        if (score === 2) return 'score-medium';
-        return 'score-high';
-    }
+    const usersTable = document.getElementById("usersTable");
+    usersTable.innerHTML = "";
+    users.forEach(u => {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${u.ip}</td><td>${u.visits}</td><td class="${scoreClass(u.score)}">${u.score}</td>`;
+        usersTable.appendChild(row);
+    });
 
-    // Mise à jour dashboard
-    function updateDashboard() {
-        document.getElementById("serverStatus").textContent = "🟢 Serveur actif";
-        document.getElementById("serverTime").textContent = new Date().toLocaleTimeString();
+    visitsChart.data.labels = logs.map(l => l.time);
+    visitsChart.data.datasets[0].data = logs.map((_, i) => i + 1);
+    visitsChart.update();
+}
 
-        document.getElementById("totalVisits").textContent = logs.length;
-        document.getElementById("uniqueIPs").textContent = users.length;
-
-        const logsTable = document.getElementById("logsTable");
-        logsTable.innerHTML = "";
-        logs.forEach(log => {
-            const row = document.createElement("tr");
-            row.innerHTML = `<td>${log.time}</td><td>${log.ip}</td><td>${log.event}</td>`;
-            logsTable.appendChild(row);
-        });
-
-        const usersTable = document.getElementById("usersTable");
-        usersTable.innerHTML = "";
-        users.forEach(u => {
-            const row = document.createElement("tr");
-            row.innerHTML = `<td>${u.ip}</td><td>${u.visits}</td><td class="${scoreClass(u.score)}">${u.score}</td>`;
-            usersTable.appendChild(row);
-        });
-
-        // Mise à jour graphique
-        visitsChart.data.labels = logs.map(l => l.time);
-        visitsChart.data.datasets[0].data = logs.map((_, i) => i + 1);
-        visitsChart.update();
-    }
-
-    updateDashboard();
-    setInterval(updateDashboard, 5000); // rafraîchit toutes les 5 sec
+updateDashboard();
+setInterval(updateDashboard, 5000);
 </script>
 
 </body>
