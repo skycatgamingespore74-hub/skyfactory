@@ -100,7 +100,7 @@ async function initDashboard() {
     const valid = await checkSession();
     if (!valid) { 
         localStorage.removeItem("sessionId");
-        window.location.href = "index.html"; 
+        window.location.href = "/index.html"; 
         return; 
     }
     document.getElementById("loader").style.display = "none";
@@ -177,7 +177,7 @@ hamburger.addEventListener("click", ()=> sidebar.classList.toggle("open"));
 document.getElementById("logoutBtn").addEventListener("click", async ()=>{
     const res = await fetch(`${SERVER_URL}/disconnect`, { method:"POST", headers:getAuthHeaders() });
     localStorage.removeItem("sessionId");
-    window.location.href = "/";
+    window.location.href = "/index.html";
 });
 
 // ==== INIT PAGE ====
