@@ -66,22 +66,38 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+// ==== CONFIG SERVEUR ====
+const SERVER_URL = "http://MON_SERVEUR:3000/admin"; // <-- Remplace MON_SERVEUR et port
+
+// ==== UTILS ====
 function scoreClass(points){
     if(points<=30) return 'score-low';
     if(points<=70) return 'score-medium';
     return 'score-high';
 }
 
+function getAuthHeaders() {
+    return {
+        "sessionid": localStorage.getItem("sessionId") || ""
+    };
+}
+
+// ==== FETCH SERVEUR ====
 async function fetchUsers(){
-    const res = await fetch('/api/users'); // ton endpoint serveur
-    return res.ok ? await res.json() : [];
+    const res = await fetch(`${SERVER_URL}/users`, { headers: getAuthHeaders() });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.success ? data.users : [];
 }
 
 async function fetchLogs(){
-    const res = await fetch('/api/logs'); // ton endpoint serveur
-    return res.ok ? await res.json() : [];
+    const res = await fetch(`${SERVER_URL}/logs`, { headers: getAuthHeaders() });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.success ? data.logs : [];
 }
 
+// ==== MISE À JOUR DASHBOARD ====
 function updateUsersTable(users){
     const usersTable = document.getElementById("usersTable");
     usersTable.innerHTML = "";
@@ -104,6 +120,7 @@ function updateLogs(logs){
     });
 }
 
+// ==== RAFRAÎCHIR DASHBOARD ====
 async function refreshDashboard(){
     const users = await fetchUsers();
     updateUsersTable(users);
@@ -116,7 +133,7 @@ async function refreshDashboard(){
     connectionChart.update();
 }
 
-// Graphique connections
+// ==== GRAPHIQUE CONNECTION ====
 const connectionCtx = document.getElementById('connectionChart').getContext('2d');
 const connectionChart = new Chart(connectionCtx, {
     type: 'doughnut',
@@ -124,11 +141,11 @@ const connectionChart = new Chart(connectionCtx, {
     options:{ responsive:true }
 });
 
-// Refresh toutes les 3s
+// ==== REFRESH AUTOMATIQUE ====
 refreshDashboard();
 setInterval(refreshDashboard, 3000);
 
-// Hamburger mobile
+// ==== HAMBURGER MOBILE ====
 const hamburger = document.getElementById("hamburger");
 const sidebar = document.getElementById("sidebar");
 hamburger.addEventListener("click", ()=> sidebar.classList.toggle("open"));
