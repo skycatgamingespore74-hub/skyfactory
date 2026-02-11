@@ -86,7 +86,7 @@
     }
 
     try {
-        const res = await fetch('https://serveur-site-production-97d2.up.railway.app/admin/validate-token', {
+        const res = await fetch(`${process.env.SERVER_URL}/admin/validate-token`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ token })
@@ -135,7 +135,7 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
     const password = document.getElementById('password').value;
 
     try {
-        const res = await fetch('https://serveur-site-production-97d2.up.railway.app/admin/login-submit', {
+        const res = await fetch(`${process.env.SERVER_URL}/admin/login-submit`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password, token })
@@ -163,9 +163,11 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
             return;
         }
 
-        // Login réussi
-        alert('Connexion réussie !');
-        window.location.href = 'admindashboard.html'; // Page admin à créer
+        // ✅ Stocker la session côté client
+        localStorage.setItem('adminSessionId', data.sessionId);
+
+        // Redirection vers dashboard
+        window.location.href = 'admindashboard.html';
 
     } catch (err) {
         console.error('Erreur login-submit:', err);
