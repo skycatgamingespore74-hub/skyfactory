@@ -115,8 +115,6 @@
     </table>
 
     <h2>Graphiques</h2>
-    <div id="charts">
-        <div class="chart-box"><canvas id="pointsChart"></canvas></div>
         <div class="chart-box"><canvas id="connectionChart"></canvas></div>
     </div>
 
@@ -153,18 +151,7 @@ function updateUsersTable(){
 // Simuler logs
 const logsDiv = document.getElementById("logs");
 const logs = ["Serveur démarré", "Connexion de Alice", "Connexion de Bob"];
-logs.forEach(l=>logsDiv.innerHTML+=`<div>${l}</div>`);
-
-// Graphiques
-const pointsCtx = document.getElementById('pointsChart').getContext('2d');
-const pointsChart = new Chart(pointsCtx, {
-    type: 'bar',
-    data: {
-        labels: users.map(u => u.name||'Non connecté'),
-        datasets: [{ label: 'Points', data: users.map(u=>u.points), backgroundColor: ['#00ff88','#ffcc00','#ff4d4d'] }]
-    },
-    options:{ responsive:true, plugins:{ legend:{display:false} }, scales:{ y:{ beginAtZero:true, max:100 }}}
-});
+// graphique
 
 const connectionCtx = document.getElementById('connectionChart').getContext('2d');
 const connectionChart = new Chart(connectionCtx, {
