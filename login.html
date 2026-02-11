@@ -86,7 +86,7 @@
     }
 
     try {
-        const res = await fetch(`${process.env.SERVER_URL}/admin/validate-token`, {
+        const res = await fetch(`https://serveur-site-production-97d2.up.railway.app/admin/validate-token`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ token })
@@ -135,7 +135,7 @@ document.getElementById('loginForm').addEventListener('submit', async e => {
     const password = document.getElementById('password').value;
 
     try {
-        const res = await fetch(`${process.env.SERVER_URL}/admin/login-submit`, {
+        const res = await fetch(`https://serveur-site-production-97d2.up.railway.app/admin/login-submit`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password, token })
