@@ -58,7 +58,7 @@
     <h2>Utilisateurs</h2>
     <table>
         <thead>
-            <tr><th>IP / Utilisateur</th><th>Points</th><th>Score comportemental</th></tr>
+            <tr><th>Email / IP</th><th>Points</th><th>Score comportemental</th></tr>
         </thead>
         <tbody id="usersTable"></tbody>
     </table>
@@ -130,8 +130,8 @@
         const usersTable = document.getElementById("usersTable");
         usersTable.innerHTML = "";
         users.forEach(u=>{
-            const displayName = u.name ? `${u.ip} <${u.name}>` : `${u.ip} (non connecté)`;
-            const points = Math.min(100, Math.max(0, u.points));
+            const displayName = u.email ? `${u.email}` : `${u.ip} (non connecté)`;
+            const points = Number.isFinite(u.points) ? u.points : 0;
             const row = document.createElement("tr");
             row.innerHTML = `<td>${displayName}</td><td>${points}</td><td class="${scoreClass(points)}">${points}</td>`;
             usersTable.appendChild(row);
@@ -143,7 +143,8 @@
         logsDiv.innerHTML = "";
         logs.forEach(l=>{
             const div = document.createElement("div");
-            div.textContent = l;
+            if(typeof l === 'object' && l.message) div.textContent = `${l.message} [${new Date(l.createdAt).toLocaleTimeString()}]`;
+            else div.textContent = l;
             logsDiv.appendChild(div);
         });
     }
@@ -155,8 +156,9 @@
         const logs = await fetchLogs();
         updateLogs(logs);
 
-        const connectionChartData = [users.filter(u=>u.name).length, users.filter(u=>!u.name).length];
-        connectionChart.data.datasets[0].data = connectionChartData;
+        const connectedCount = users.filter(u => u.email).length;
+        const notConnectedCount = users.filter(u => !u.email).length;
+        connectionChart.data.datasets[0].data = [connectedCount, notConnectedCount];
         connectionChart.update();
     }
 
@@ -164,7 +166,10 @@
     const connectionCtx = document.getElementById('connectionChart').getContext('2d');
     const connectionChart = new Chart(connectionCtx, {
         type:'doughnut',
-        data:{ labels:['Connecté','Non connecté'], datasets:[{ data:[0,0], backgroundColor:['#00ff88','#ff4d4d'] }] },
+        data:{
+            labels:['Connecté','Non connecté'],
+            datasets:[{ data:[0,0], backgroundColor:['#00ff88','#ff4d4d'] }]
+        },
         options:{ responsive:true }
     });
 
