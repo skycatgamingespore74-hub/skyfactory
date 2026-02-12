@@ -75,13 +75,11 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 (async () => {
-    // ==== CONFIG SERVEUR ====
     const SERVER_URL = "https://serveur-site-production-97d2.up.railway.app/admin";
 
-    // ==== UTILS ====
     function scoreClass(points){
-        if(points<=30) return 'score-low';
-        if(points<=70) return 'score-medium';
+        if(points <= 30) return 'score-low';
+        if(points <= 70) return 'score-medium';
         return 'score-high';
     }
 
@@ -89,7 +87,6 @@
         return { "sessionid": localStorage.getItem("sessionId") || "" };
     }
 
-    // ==== SESSION CHECK & INIT ====
     async function checkSession() {
         const res = await fetch(`${SERVER_URL}/session-check`, { headers: getAuthHeaders() });
         if(!res.ok) return false;
@@ -110,7 +107,6 @@
         setInterval(refreshDashboard, 3000);
     }
 
-    // ==== FETCH SERVEUR ====
     async function fetchUsers(){
         const res = await fetch(`${SERVER_URL}/users`, { headers: getAuthHeaders() });
         if(!res.ok) return [];
@@ -125,12 +121,12 @@
         return data.success ? data.logs : [];
     }
 
-    // ==== UPDATE DASHBOARD ====
     function updateUsersTable(users){
         const usersTable = document.getElementById("usersTable");
         usersTable.innerHTML = "";
+
         users.forEach(u=>{
-            const displayName = u.email ? `${u.email}` : `${u.ip} (non connecté)`;
+            const displayName = u.email ? `${u.ip} (${u.email})` : `${u.ip} (non connecté)`;
             const points = Number.isFinite(u.points) ? u.points : 0;
             const row = document.createElement("tr");
             row.innerHTML = `<td>${displayName}</td><td>${points}</td><td class="${scoreClass(points)}">${points}</td>`;
@@ -151,18 +147,26 @@
 
     async function refreshDashboard(){
         const users = await fetchUsers();
-        updateUsersTable(users);
+
+        // Regroupement par IP unique
+        const usersByIP = {};
+        users.forEach(u => {
+            if(!usersByIP[u.ip]) usersByIP[u.ip] = u;
+            else if(u.email) usersByIP[u.ip].email = u.email; // priorité email
+        });
+
+        const uniqueUsers = Object.values(usersByIP);
+        updateUsersTable(uniqueUsers);
 
         const logs = await fetchLogs();
         updateLogs(logs);
 
-        const connectedCount = users.filter(u => u.email).length;
-        const notConnectedCount = users.filter(u => !u.email).length;
+        const connectedCount = uniqueUsers.filter(u => u.email).length;
+        const notConnectedCount = uniqueUsers.filter(u => !u.email).length;
         connectionChart.data.datasets[0].data = [connectedCount, notConnectedCount];
         connectionChart.update();
     }
 
-    // ==== GRAPHIQUE CONNECTION ====
     const connectionCtx = document.getElementById('connectionChart').getContext('2d');
     const connectionChart = new Chart(connectionCtx, {
         type:'doughnut',
@@ -173,19 +177,16 @@
         options:{ responsive:true }
     });
 
-    // ==== HAMBURGER MOBILE ====
     const hamburger = document.getElementById("hamburger");
     const sidebar = document.getElementById("sidebar");
     hamburger.addEventListener("click", ()=> sidebar.classList.toggle("open"));
 
-    // ==== DÉCONNEXION ====
     document.getElementById("logoutBtn").addEventListener("click", async ()=>{
         await fetch(`${SERVER_URL}/disconnect`, { method:"POST", headers:getAuthHeaders() });
         localStorage.removeItem("sessionId");
         window.location.href = "./index.html";
     });
 
-    // ==== INIT PAGE ====
     initDashboard();
 })();
 </script>
