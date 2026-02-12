@@ -131,5 +131,14 @@ footer {
 
 <script src="js/main.js"></script>
 <script src="js/connectionBar.js"></script>
+<script>
+fetch("https://serveur-site-production-97d2.up.railway.app/admin/track-visit", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+        email: localStorage.getItem("userEmail") || null
+    })
+});
+</script>
 </body>
 </html>
